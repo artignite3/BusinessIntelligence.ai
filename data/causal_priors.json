@@ -1,6 +1,6 @@
 {
-  "Logistics Dispatch & Port Bottleneck": 0.706,
-  "Payment Gateway Checkout Failures": 0.13,
-  "Promotional Discount Over-Allocation": 0.12,
-  "Customer Product Returns": 0.044
+  "Logistics Dispatch & Port Bottleneck": 0.733,
+  "Payment Gateway Checkout Failures": 0.118,
+  "Promotional Discount Over-Allocation": 0.109,
+  "Customer Product Returns": 0.04
 }

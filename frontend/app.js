@@ -469,3 +469,49 @@ function showToast(message, type = "info") {
     setTimeout(() => toast.remove(), 300);
   }, 4000);
 }
+
+// -------------------------------------------------------------
+// 5. THEME SWITCHER (LIGHT & DARK MODE)
+// -------------------------------------------------------------
+let currentTheme = "dark";
+
+function toggleTheme() {
+  const root = document.documentElement;
+  const icon = document.getElementById("themeIcon");
+
+  if (currentTheme === "dark") {
+    currentTheme = "light";
+    root.classList.remove("dark");
+    root.classList.add("light");
+    if (icon) {
+      icon.setAttribute("data-lucide", "moon");
+      icon.className = "w-4 h-4 text-purple-700";
+    }
+    showToast("☀️ Switched to Crisp Light Formal Theme", "info");
+  } else {
+    currentTheme = "dark";
+    root.classList.remove("light");
+    root.classList.add("dark");
+    if (icon) {
+      icon.setAttribute("data-lucide", "sun");
+      icon.className = "w-4 h-4 text-amber-400";
+    }
+    showToast("🌙 Switched to Deep Space Dark Theme", "info");
+  }
+
+  if (window.lucide) lucide.createIcons();
+  updateChartTheme();
+}
+
+function updateChartTheme() {
+  if (!kpiChartInstance) return;
+  const isDark = currentTheme === "dark";
+  const gridColor = isDark ? "rgba(51, 65, 85, 0.25)" : "rgba(203, 213, 225, 0.6)";
+  const tickColor = isDark ? "#94A3B8" : "#64748B";
+
+  kpiChartInstance.options.scales.x.grid.color = gridColor;
+  kpiChartInstance.options.scales.x.ticks.color = tickColor;
+  kpiChartInstance.options.scales.y.grid.color = gridColor;
+  kpiChartInstance.options.scales.y.ticks.color = tickColor;
+  kpiChartInstance.update();
+}
