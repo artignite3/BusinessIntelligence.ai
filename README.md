@@ -1,223 +1,257 @@
-# 🚀 BusinessIntelligence.ai
-### *A Governed, Persona-Driven KPI Intelligence-to-Action Engine with Adversarial Causal Verification*
-> **Accenture Innovation Challenge 2026 — Track 3 (Round 2 Working Prototype Submission)**
+# 🧠 BusinessIntelligence.ai — Governed KPI Intelligence-to-Action Engine
+### *AI Reinvention Made Real: Turning Anomaly Noise into Traceable Causal Decisions*
+
+[![Accenture Innovation Challenge 2026](https://img.shields.io/badge/Accenture_Innovation_Challenge-2026_Track_3-A100FF.svg)](https://www.accenture.com)
+[![Architecture: Decoupled & Governed](https://img.shields.io/badge/Architecture-Decoupled_Mathematical_Core-00D26A.svg)](#2-system-architecture)
+[![FastAPI Backend](https://img.shields.io/badge/Backend-FastAPI_REST-009688.svg)](https://fastapi.tiangolo.com)
+[![Next.js 14 Frontend](https://img.shields.io/badge/Frontend-Next.js_14_React_Recharts-000000.svg)](https://nextjs.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
-## 📑 Table of Contents
-1. [Executive Summary & Core Philosophy](#1-executive-summary--core-philosophy)
-2. [End-to-End System Architecture](#2-end-to-end-system-architecture)
-3. [Mathematical Framework & Core Formulations](#3-mathematical-framework--core-formulations)
-4. [Governed Semantic Data Contract & RBAC](#4-governed-semantic-data-contract--rbac)
-5. [The 4 Mandatory Case Study Scenarios](#5-the-4-mandatory-case-study-scenarios)
-6. [7-Pillar Action Recommendation Matrix](#6-7-pillar-action-recommendation-matrix)
-7. [Active Continuous Learning Feedback Loop](#7-active-continuous-learning-feedback-loop)
-8. [Runtime Telemetry & Economic Profile](#8-runtime-telemetry--economic-profile)
-9. [Repository Structure](#9-repository-structure)
-10. [Installation & Execution Guide](#10-installation--execution-guide)
+## 📌 Executive Summary
+
+Modern enterprise dashboards detect **what** changed in a business metric (e.g., *"Net Revenue fell 8.4% in the West Region"*), but force human analysts to spend days manually cross-referencing disparate SQL ledgers, WMS streams, and support tickets to uncover **why**. 
+
+**BusinessIntelligence.ai** is a governed, end-to-end KPI intelligence-to-action engine that:
+1. **Separates Deterministic Arithmetic from LLM Generation:** The LLM is *never* the calculator. All time-series decomposition (STL+MAD), Shapley variance attribution, and Bayesian confidence scoring are calculated deterministically in Python/SQL. The LLM acts purely as a schema-constrained synthesis layer.
+2. **Reconciles Heterogeneous Data Sources:** Bridges daily relational ERP sales, hourly logistics telemetry, and streaming customer feedback tickets via a plug-and-play connector layer.
+3. **Enforces Autonomous Abstention:** Refuses to hallucinate when data is contradictory or Bayesian confidence falls below $60\%$.
+4. **Tailors Persona Narratives & 7-Pillar Action Matrices:** Delivers macro financial levers to Chief Commercial Officers and operational carrier rerouting levers to Regional Ops Leads (with column masking for cost confidentiality).
+5. **Provides a Responsive Executive Canvas:** Built with **Next.js 14**, **React 18**, **Recharts**, and **TailwindCSS** featuring **Dual Formal Themes (Light ☀️ / Dark 🌙 Mode Switcher)**.
 
 ---
 
-## 1. Executive Summary & Core Philosophy
-
-Traditional Business Intelligence dashboards (PowerBI, Tableau) show **THAT** a metric changed, but leave the root-cause investigation to human analysts taking **3 to 5 business days**.
-
-**BusinessIntelligence.ai** is an enterprise-grade intelligence-to-action engine that automatically detects material anomalies, reconciles heterogeneous data sources, attributes root causes through cooperative game theory, and synthesizes persona-specific action memos in **under 3 minutes**.
-
-### 🌟 The Golden Architectural Rule:
-> **"The LLM is NOT the source of quantitative truth."**
-
-All arithmetic, seasonal decomposition, attribution percentages, and security maskings are executed **deterministically in Python/Polars and SQL**. The LLM (Groq / LLaMA-3.3-70B) is strictly an orchestration and narrative formatting layer bounded by strict JSON schema contracts.
-
----
-
-## 2. End-to-End System Architecture
+## 🏗️ 1. Complete Architecture Diagram
 
 ```mermaid
 flowchart TD
-    subgraph Ingestion["1. Heterogeneous Data Layer & Semantic Contract"]
-        A1[(Source A: Financial ERP<br/>Daily SQL Batch)]
-        A2[(Source B: WMS Logistics<br/>Hourly Telemetry)]
-        A3[(Source C: Customer Voice<br/>Streaming Tickets & Logs)]
-        SC[kpi_contract.yaml<br/>Formulas, Lineage, RBAC]
+    subgraph DataIngestion ["1. Heterogeneous Data Layer (data/connectors)"]
+        S1["Relational SQL ERP<br/>(Daily Sales Ledger)"]
+        S2["WMS Telemetry Stream<br/>(Hourly Dispatch / Damage)"]
+        S3["Customer Voice Lake<br/>(Zendesk / Reviews Stream)"]
+        NORM["Schema Normalizer<br/>(normalizer.py)"]
+        S1 --> NORM
+        S2 --> NORM
+        S3 --> NORM
     end
 
-    subgraph DeterministicCore["2. Deterministic & Statistical Core (Python/Polars)"]
-        B1["Anomaly Gatekeeper<br/>STL + MAD Z-Score ≥ 2.50σ"]
-        B2["Driver Decomposition<br/>Shapley Value Attribution & Mix-Shift"]
-        B3["Semantic Vector Lake<br/>pgvector + SentenceTransformers"]
+    subgraph Governance ["2. Semantic Contract Layer (contracts/)"]
+        YAML["kpi_contract.yaml<br/>• KPI Math Formulas<br/>• Lineage Graphs<br/>• Materiality Thresholds (Z ≥ 2.50σ)<br/>• RBAC Column Masking Rules"]
     end
 
-    subgraph CausalReasoning["3. Multi-Agent Reasoning & Abstention Engine"]
-        C1["Adversarial Causal Critic<br/>Temporal Precedence & Control Cohorts"]
-        C2["Bayesian Uncertainty Engine<br/>Abstains if Max Posterior P < 0.60"]
-        C3["Hierarchical Cold-Start Engine<br/>Category Prior Smoothing for N < 14d"]
+    subgraph AnalyticsEngine ["3. Deterministic Analytics Core (engine/)"]
+        ANOM["Noise Gatekeeper<br/>STL + MAD Z-Score ≥ 2.50σ"]
+        SHAP["Causal Driver Decomposition<br/>Cooperative Shapley Game Theory"]
+        VEC["Context Lake Retrieval<br/>Dense Cosine Embeddings (±48h Window)"]
+        BAYES["Bayesian Uncertainty Engine<br/>Posterior Bounds & Low-Confidence Abstention"]
+        COLD["Cold-Start Engine<br/>Hierarchical Bayesian Category Smoothing"]
+        NORM --> ANOM
+        ANOM --> SHAP
+        ANOM --> VEC
+        SHAP --> BAYES
+        VEC --> BAYES
+        COLD --> BAYES
     end
 
-    subgraph Presentation["4. Governed Executive Canvas (Next.js 14)"]
-        D1["VP Commercial Canvas<br/>Macro View + Margin Levers"]
-        D2["Regional Ops Canvas<br/>WMS View + Carrier Reroute"]
-        D3["Active Learning Loop<br/>Analyst Feedback & Prior Updates"]
+    subgraph Synthesis ["4. Schema-Constrained Synthesis (engine/narrative_synthesizer.py)"]
+        SYNTH["Groq LLaMA-3.3-70B Synthesis<br/>(Pydantic Schema Output)"]
+        BAYES --> SYNTH
+        YAML -.->|Enforces RBAC & Lineage| SYNTH
     end
 
-    A1 --> B1
-    A2 --> B2
-    A3 --> B3
-    SC --> B1
-    SC --> B2
-    B1 --> C1
-    B2 --> C1
-    B3 --> C2
-    C1 --> C2
-    C2 --> C3
-    C3 --> D1
-    C3 --> D2
-    D3 --> B2
+    subgraph Presentation ["5. Executive Decision Canvas (frontend/)"]
+        DASH["Interactive Executive Canvas<br/>• Next.js 14 + Recharts + Framer Motion<br/>• Dual Theme: Light ☀️ / Dark 🌙 Toggle<br/>• 1-Click Action Dispatch<br/>• Active Learning Feedback Loop"]
+        SYNTH --> DASH
+    end
+
+    subgraph Feedback ["6. Active Continuous Learning (engine/feedback_loop.py)"]
+        ACT["Analyst Thumbs Up/Down & Confirmations"]
+        DASH --> ACT
+        ACT -->|Updates Dynamic Priors| BAYES
+    end
 ```
 
 ---
 
-## 3. Mathematical Framework & Core Formulations
+## 🔬 2. Analytical & Mathematical Core
 
-### 🔹 1. Noise-Resistant Anomaly Detection (STL + MAD)
-To eliminate false alarms from routine weekly cycles, the engine partitions time-series signals using Seasonal-Trend LOESS (STL):
-$$x_t = T_t + S_t + R_t$$
-Residual outlier score $\mathcal{Z}_t$ is computed using Median Absolute Deviation (MAD):
-$$\mathcal{Z}_t = \frac{|R_t - \text{Median}(R)|}{1.4826 \cdot \text{MAD}(R)} \ge 2.50$$
+### A. Anomaly Gatekeeper: STL + MAD Robust $\mathcal{Z}$-Score
+To filter seasonal noise without false positives, raw time series $Y_t$ is decomposed into Trend ($T_t$), Seasonality ($S_t$), and Remainder ($R_t$):
+$$Y_t = T_t + S_t + R_t$$
+Residuals are normalized using the Median Absolute Deviation (MAD):
+$$\text{MAD} = \text{median}(|R_t - \text{median}(R)|)$$
+$$\mathcal{Z}_t = \frac{|R_t - \text{median}(R)|}{1.4826 \times \text{MAD}}$$
+*Gate:* An alert triggers **only** if $\mathcal{Z}_t \ge 2.50\sigma$ AND absolute business impact $\ge \$50,000$.
 
-### 🔹 2. Cooperative Shapley Causal Feature Attribution
-Marginal contribution $\phi_j$ of operational driver $j$ toward metric drop $\Delta Y$:
-$$\phi_j = \sum_{S \subseteq \mathcal{F} \setminus \{j\}} \frac{|S|!(|\mathcal{F}| - |S| - 1)!}{|\mathcal{F}|!} \left[ v(S \cup \{j\}) - v(S) \right]$$
+### B. Causal Attribution: Cooperative Shapley Variance Decomposition
+Given a set of $N$ candidate drivers (discounts, returns, carrier delays, checkout failures), driver $j$'s marginal variance contribution $\phi_j$ is calculated as:
+$$\phi_j(v) = \sum_{S \subseteq N \setminus \{j\}} \frac{|S|!(|N| - |S| - 1)!}{|N|!} \left( v(S \cup \{j\}) - v(S) \right)$$
 
-### 🔹 3. Bayesian Multi-Hypothesis Abstention Formulation
-Posterior distribution over competing hypotheses given joint evidence $\mathbf{E}$:
-$$P(H_k \mid \mathbf{E}) = \frac{P(\mathbf{E} \mid H_k) \cdot P(H_k)}{\sum_{m=1}^M P(\mathbf{E} \mid H_m) \cdot P(H_m)}, \quad \text{Abstain if } \max_k P(H_k \mid \mathbf{E}) < 0.60$$
+### C. Autonomous Abstention & Contradiction Detection
+When evidence from heterogeneous sources conflicts, the Bayesian posterior probability $P(H_k | E)$ is evaluated:
+$$P(H_k | E) = \frac{P(E | H_k) P(H_k)}{\sum_m P(E | H_m) P(H_m)}$$
+*Abstention Rule:* If $\max_k P(H_k | E) < 0.60$, the system **suppresses automatic actions**, displays a high-visibility warning banner, and prescribes a physical audit.
 
----
-
-## 4. Governed Semantic Data Contract & RBAC
-
-Located in [`contracts/kpi_contract.yaml`](contracts/kpi_contract.yaml):
-* **Net Revenue Contract:** `SUM(orders.gross_amount) - SUM(orders.discounts) - SUM(returns.refund_value)`
-* **OTIF Rate Contract:** `COUNT(shipments WHERE delivery_time <= promised) / COUNT(shipments)`
-* **RBAC Policy:** 
-  * `VP Commercial`: Global visibility, financial margin access.
-  * `Regional Ops Lead`: Filtered to assigned region, financial cost columns masked.
+### D. Cold-Start Prior Smoothing ($N < 14$ Days History)
+For new SKU launches lacking historical depth, local empirical observations are smoothed with hierarchical category peer distributions:
+$$\hat{\mu}_{\text{smoothed}} = w_{\text{prior}} \cdot \mu_{\text{category}} + (1 - w_{\text{prior}}) \cdot \bar{y}_{\text{SKU}}$$
 
 ---
 
-## 5. The 4 Mandatory Case Study Scenarios
+## 🎨 3. Frontend Executive Canvas (Next.js 14 + TailwindCSS)
 
-| Scenario | Objective | How the Engine Handles It |
-| :--- | :--- | :--- |
-| **Scenario 1: Multi-Factor Drop** | Price discount + Port delay + Payment failure collision. | Shapley decomposition attributes exact variance: Logistics (48%) + Payment (32%) + Discount (20%). |
-| **Scenario 2: Low-Confidence Abstention** | Conflicting data: 92% positive reviews vs. high return rate. | Bayesian confidence drops to 41% (below 60% threshold) $\implies$ **Engine abstains from supplier penalties** and orders physical package inspection. |
-| **Scenario 3: Cold-Start Launch SKU** | New EV Charger SKU with only 11 days history ($N < 14$). | Employs Hierarchical Bayesian prior smoothing from parent category (`EV Accessories` baseline: 21.5 units). |
-| **Scenario 4: Role-Based Security** | Data governance across personas. | VP sees macro margin impact; Ops Lead receives masked logistics view with carrier rerouting levers. |
+The user interface is built as a modern, responsive web application supporting **Dual Formal Themes**:
+
+```
+☀️ LIGHT THEME (Bright Formal Executive Mode)
+├── Clean Crisp Slate Background (#F8FAFC, #FFFFFF)
+├── Deep Royal Purple typography (#7C3AED) with high-contrast metric badges
+└── Soft shadows and clean borders for executive boardroom presentations
+
+🌙 DARK THEME (Deep Space Accenture Violet Mode)
+├── Deep Space Slate (#070B14, #0D1322) with purple radial lighting
+├── Glassmorphism card styling with subtle glowing borders (#A100FF)
+└── High-contrast JetBrains Mono for metrics and Inter for typography
+```
+
+### Key Interactive Features:
+* **One-Click Theme Toggle:** Instant smooth switching between Light ☀️ and Dark 🌙 modes.
+* **Animated Time-Series Charts (`recharts`):** Purple gradient area fills with 7-day STL baseline and pulsing anomaly markers.
+* **Persona Toggle Switcher (RBAC):** Seamlessly toggles between **VP Commercial** (unmasked margins, macro strategy) and **Regional Ops Lead** (masked costs, carrier dispatch levers).
+* **7-Pillar Action Matrix Card:** Displays controllable lever, prescribed action, expected impact, owner, and animated **1-Click Execute Action** button.
+* **Semantic Contract Inspector Modal:** Allows judges and users to inspect the live YAML data contract directly in the UI.
+* **Active Learning Feedback Modal:** Lets analysts submit ground truth feedback, updating Bayesian causal priors in real time.
 
 ---
 
-## 6. 7-Pillar Action Recommendation Matrix
+## 📁 4. Repository Structure
 
-$$\text{Driver} \longrightarrow \text{Controllable Lever} \longrightarrow \text{Action} \longrightarrow \text{Expected Impact} \longrightarrow \text{Owner} \longrightarrow \text{Confidence} \longrightarrow \text{Monitoring Plan}$$
-
-```json
-{
-  "driver": "Logistics Dispatch Port Bottleneck (48.5h delay in West)",
-  "controllable_lever": "Warehouse Carrier Route Allocation",
-  "action": "Shift 65% of West outbound fulfillment to Backup Carrier BlueDart B",
-  "expected_impact": "+$64,000 revenue recovery; OTIF restored from 61.2% to 94.5%",
-  "owner": "Regional Operations & Logistics Lead",
-  "confidence_score": "94% (Deterministic Telemetry Proof)",
-  "monitoring_plan": "Hourly WMS dispatch throughput telemetry tracking for 48 hours"
-}
+```
+BuisnessIntelligence.ai/
+├── 📜 contracts/
+│   ├── kpi_contract.yaml       # Governed Semantic Data Contract, Lineage & RBAC
+│   └── README.md               # Contract schema documentation
+├── 🗄️ data/
+│   ├── connectors/
+│   │   ├── normalizer.py       # Enterprise column normalizer
+│   │   ├── api_connector.py    # REST API connector for live cloud portals
+│   │   ├── db_connector.py     # SQL warehouse connector (Snowflake/PostgreSQL)
+│   │   └── __init__.py
+│   ├── sales_orders.csv        # Source A: Daily Financial Sales Ledger
+│   ├── logistics_wms.csv       # Source B: Hourly WMS Logistics Stream
+│   ├── customer_feedback.json  # Source C: Unstructured Reviews & Tickets
+│   ├── cold_start_sku.csv      # Scenario 3: 11-Day New SKU History
+│   ├── causal_priors.json      # Dynamic Bayesian Prior Weights
+│   ├── generate_datasets.py    # Synthetic Benchmark Data Generator
+│   └── README.md               # Dataset documentation
+├── ⚙️ engine/
+│   ├── anomaly_detector.py     # STL + MAD Robust Z-Score Filter
+│   ├── causal_attribution.py   # Shapley Variance Decomposition Engine
+│   ├── vector_retrieval.py     # Semantic Search on Tickets & Reviews
+│   ├── abstention_engine.py    # Bayesian Uncertainty & Abstention Engine
+│   ├── cold_start_engine.py    # Hierarchical Bayesian Cold-Start Engine
+│   ├── narrative_synthesizer.py# Persona Brief & 7-Pillar Action Generator
+│   ├── feedback_loop.py        # Active Learning Feedback Engine
+│   ├── __init__.py
+│   └── README.md               # Engine mathematical formulations
+├── 🌐 backend/
+│   ├── main.py                 # FastAPI REST Microservice Gateway
+│   ├── __init__.py
+│   └── README.md               # API endpoints reference & Swagger guide
+├── 💻 frontend/
+│   ├── app/
+│   │   ├── layout.tsx          # Next.js Root Layout with Theme Provider
+│   │   ├── page.tsx            # Master Next.js 14 React Executive Canvas
+│   │   └── globals.css         # Tailwind & Typography imports
+│   ├── index.html              # Standalone Executive Canvas (HTML5 + Tailwind)
+│   ├── app.js                  # Chart.js renderer & Theme Switcher logic
+│   ├── styles.css              # Dual-Theme Stylesheet (Light/Dark)
+│   ├── tailwind.config.js      # Tailwind configuration with darkMode: 'class'
+│   ├── package.json            # React 18, Next.js 14, Recharts, Framer Motion
+│   └── README.md               # Frontend documentation & UI features
+├── 🔒 .gitignore              # Comprehensive data protection & build ignore policy
+├── 🐳 Dockerfile               # Single-command Docker container configuration
+├── 🐙 docker-compose.yml       # Docker Compose multi-service deployment
+├── 🧪 test_all_scenarios.py   # End-to-End Master Test Verification Suite
+├── 📦 requirements.txt        # Python dependencies
+└── 📖 README.md               # Master Repository Documentation
 ```
 
 ---
 
-## 7. Active Continuous Learning Feedback Loop
-
-1. **Feedback Capture:** Users and analysts submit 👍 / 👎 or driver corrections on the Executive Canvas.
-2. **Prior Adaptation:** Feedback dynamically updates the Bayesian Causal Priors in `data/causal_priors.json`, adapting the engine to evolving operational realities.
-
----
-
-## 8. Runtime Telemetry & Economic Profile
-
-* **End-to-End Processing Latency:** $345\text{ ms}$ (Sub-second execution)
-* **Token Consumption:** 420 tokens per structured executive brief
-* **Cost per Insight:** **$0.00028 USD** (Using Groq LLaMA-3.3-70B)
-* **Deterministic Execution:** $<35\text{ ms}$ on standard multi-core CPUs.
-
----
-
-## 9. Repository Structure
-
-```
-├── contracts/
-│   └── kpi_contract.yaml           # Semantic Data Contract & Lineage Schema
-├── data/
-│   ├── sales_orders.csv            # Source A: Daily Financial Sales Ledger
-│   ├── logistics_wms.csv           # Source B: Hourly WMS Logistics Stream
-│   ├── customer_feedback.json      # Source C: Unstructured Reviews & Tickets
-│   ├── cold_start_sku.csv          # Scenario 3: 11-Day New SKU History
-│   └── generate_datasets.py        # Synthetic Data Generator Script
-├── engine/
-│   ├── anomaly_detector.py         # STL + MAD Robust Z-Score Filter
-│   ├── causal_attribution.py       # Shapley Variance Decomposition Engine
-│   ├── vector_retrieval.py         # Semantic Search on Tickets & Reviews
-│   ├── abstention_engine.py        # Bayesian Uncertainty & Abstention Engine
-│   ├── cold_start_engine.py        # Hierarchical Bayesian Cold-Start Engine
-│   ├── narrative_synthesizer.py    # Persona Brief & 7-Pillar Action Generator
-│   └── feedback_loop.py            # Active Continuous Learning Feedback Engine
-├── test_all_scenarios.py           # End-to-End Master Test Verification Suite
-├── Dockerfile
-├── docker-compose.yml
-└── README.md                       # Master Documentation
-```
-
----
-
-## 10. Installation & Execution Guide
+## 🚀 5. Installation & Quickstart Guide
 
 ### 🔧 Prerequisites
-* Python 3.10+
-* Node.js 18+ (for Next.js frontend mode)
-
-### 🚀 Step-by-Step Setup
-
-```bash
-# 1. Clone Repository
-git clone https://github.com/your-username/BusinessIntelligence.ai.git
-cd BusinessIntelligence.ai
-
-# 2. Create Virtual Environment
-python -m venv venv
-
-# 3. Activate Virtual Environment
-# On Windows (PowerShell):
-.\venv\Scripts\activate
-# On Linux / macOS:
-source venv/bin/activate
-
-# 4. Install Dependencies
-pip install -r requirements.txt
-
-# 5. Generate Benchmark Datasets
-python data/generate_datasets.py
-
-# 6. Run Master Verification Suite (Validates all 4 Scenarios)
-python test_all_scenarios.py
-
-# 7. Start FastAPI Backend & Interactive Executive Canvas
-python -m uvicorn backend.main:app --reload --port 8000
-```
-
-* **Interactive Executive Dashboard:** Open [http://127.0.0.1:8000/dashboard/](http://127.0.0.1:8000/dashboard/)
-* **FastAPI Swagger Docs:** Open [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **Python 3.10+**
+* **Node.js 18+** *(for Next.js frontend mode)*
 
 ---
 
-### 👥 Team Contribution Matrix
-* **ML, Data Analytics & Repo Architect (Lead):** Core Statistical Engines, Causal Shapley Attribution, Vector Lake, Bayesian Abstention, Semantic YAML Contract, Datasets & Documentation.
-* **Full-Stack & Systems Engineer:** FastAPI Backend Gateway, Next.js 14 Dashboard UI, Docker, and Prototype Video Production.
+### 💻 Step-by-Step Execution
+
+#### Step 1: Clone Repository
+```bash
+git clone https://github.com/your-username/BusinessIntelligence.ai.git
+cd BusinessIntelligence.ai
+```
+
+#### Step 2: Create & Activate Python Virtual Environment
+```bash
+# Create Virtual Environment
+python -m venv venv
+
+# Activate on Windows (PowerShell):
+.\venv\Scripts\activate
+
+# Activate on Linux / macOS:
+source venv/bin/activate
+```
+
+#### Step 3: Install Python Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+#### Step 4: Generate Benchmark Datasets
+```bash
+python data/generate_datasets.py
+```
+
+#### Step 5: Run Master Test Verification Suite (Validates all 4 Scenarios)
+```bash
+python test_all_scenarios.py
+```
+
+#### Step 6: Launch Backend REST API & Interactive Dashboard
+```bash
+python -m uvicorn backend.main:app --reload --port 8000
+```
+* 📊 **FastAPI Interactive Dashboard:** [http://127.0.0.1:8000/dashboard/](http://127.0.0.1:8000/dashboard/)
+* 📜 **FastAPI Swagger API Docs:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+#### Step 7 (Optional): Launch Next.js 14 App Router
+```bash
+cd frontend
+npm install
+npm run dev
+```
+* ⚛️ **Next.js React Dashboard:** [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📊 6. Case Study Scenario Verification Matrix
+
+| Scenario | Injected Anomaly Event | Statistical Engine Applied | Result / Diagnosis | Decision Output |
+| :--- | :--- | :--- | :--- | :--- |
+| **Scenario 1 (Day 14)** | Net Revenue dropped 8.4% in West Region Electronics. | STL + MAD ($\mathcal{Z} = 3.09\sigma$), Shapley Decomposition, pgvector search. | Discounts (59.1%), Port Delay (38.2%), iOS Checkout Timeouts (2.7%). | **VP Commercial:** Approve \$25k air-freight buffer.<br>**Ops Lead:** Reroute 65% volume to Carrier B. |
+| **Scenario 2 (Day 21)** | Returns spiked +14%, but customer sentiment is 92% positive. | Bayesian Multi-Hypothesis Posterior Calculation. | Posterior confidence = 41.2% (< 60% threshold). Courier transit damage vs. hardware defect. | **Autonomous Abstention Enforced:** Suppress automated penalties; mandate physical QA audit. |
+| **Scenario 3 (Day 10)** | EV Smart Charger SKU sales dropped to 4 units on Day 10. | Hierarchical Bayesian Category Prior Smoothing ($N = 11$ days history). | Breached 95% Bayesian tolerance band (15.2 units) due to post-launch promo conclusion. | **Growth Marketing:** Deploy automated re-engagement campaign to existing EV buyers. |
+| **Scenario 4 (Feedback)** | Analyst confirms Logistics Port Bottleneck as primary root cause. | Dynamic Bayesian Active Learning Feedback Loop. | Prior weight updated from 0.400 $\to$ 0.720. | **Continuous Model Adaptation:** Priors dynamically updated in `causal_priors.json`. |
+
+---
+
+## 👥 7. Team Contribution Matrix — Team BugFree (IIT Patna)
+
+* **ML, Data Analytics & Causal Architect (Lead):** Core Statistical Algorithms (STL+MAD, Shapley Values, Bayesian Abstention, Hierarchical Prior Smoothing), Semantic Data Contract, Synthetic Datasets, Master Test Suite, Data Connectors, Repository Documentation.
+* **Full-Stack & Systems Engineer:** FastAPI Backend Gateway, Next.js 14 React Dashboard, Recharts Integration, Docker Containerization, Prototype Video Production.
