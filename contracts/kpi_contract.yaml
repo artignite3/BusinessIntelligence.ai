@@ -1,0 +1,143 @@
+version: "1.0.0"
+metadata:
+  organization: "Enterprise Commercial & Operations"
+  engine: "BusinessIntelligence.ai Governance Layer"
+  last_updated: "2026-08-23"
+
+# -------------------------------------------------------------
+# 1. HETEROGENEOUS DATA SOURCES SPECIFICATION
+# -------------------------------------------------------------
+data_sources:
+  source_a_sales:
+    name: "Enterprise Sales Ledger (ERP)"
+    type: "relational_sql"
+    engine: "PostgreSQL / Snowflake"
+    refresh_cadence: "daily_midnight"
+    grain: "order_id, sku_id, timestamp"
+    quality_sla: "99.9% completeness, immutable ledger"
+    
+  source_b_logistics:
+    name: "Supply Chain & Warehouse WMS"
+    type: "telemetry_stream"
+    engine: "PostgreSQL / Kafka"
+    refresh_cadence: "hourly"
+    grain: "shipment_id, warehouse_id, carrier_id, timestamp"
+    quality_sla: "98.5% completeness, handles missing carrier pings"
+    
+  source_c_customer_voice:
+    name: "Customer Support & Review Lake"
+    type: "unstructured_text"
+    engine: "PostgreSQL + pgvector"
+    refresh_cadence: "continuous_streaming"
+    grain: "ticket_id, review_id, customer_id, timestamp"
+    quality_sla: "Natural language text with sentiment & vector embeddings"
+
+# -------------------------------------------------------------
+# 2. GOVERNED KPI CONTRACT DEFINITIONS
+# -------------------------------------------------------------
+kpi_contracts:
+  net_revenue:
+    id: "KPI-001"
+    name: "Net Revenue"
+    category: "Financial Performance"
+    formula: "SUM(orders.gross_amount) - SUM(orders.discounts) - SUM(returns.refund_value)"
+    unit: "USD"
+    refresh_cadence: "daily"
+    materiality_threshold:
+      statistical_sigma: 2.50
+      business_impact_usd: 50000.00
+    lineage:
+      upstream_tables:
+        - "erp.orders"
+        - "finance.discounts"
+        - "returns.refunds"
+    security_policy:
+      vp_commercial:
+        can_view: true
+        can_drilldown: true
+        masked_columns: []
+      regional_ops_lead:
+        can_view: true
+        can_drilldown: true
+        row_filter: "region = user.assigned_region"
+        masked_columns: ["margin_cost", "executive_discount_budget"]
+    controllable_levers:
+      - lever_id: "LEV-001"
+        name: "Promotional Discount Cap"
+        owner_role: "VP Commercial"
+        decision_rights: "Immediate executive approval"
+        expected_latency_hours: 1
+      - lever_id: "LEV-002"
+        name: "Warehouse Carrier Rerouting"
+        owner_role: "Regional Operations Lead"
+        decision_rights: "Operational dispatch override"
+        expected_latency_hours: 4
+
+  on_time_fulfillment_rate:
+    id: "KPI-002"
+    name: "On-Time In-Full (OTIF) Delivery Rate"
+    category: "Logistics & Operations"
+    formula: "COUNT(shipments WHERE delivery_time <= promised_time) / COUNT(shipments)"
+    unit: "Percentage"
+    refresh_cadence: "hourly"
+    materiality_threshold:
+      statistical_sigma: 2.00
+      business_impact_percentage: 5.00
+    lineage:
+      upstream_tables:
+        - "wms.shipments"
+        - "carriers.tracking_events"
+    security_policy:
+      vp_commercial:
+        can_view: true
+        masked_columns: []
+      regional_ops_lead:
+        can_view: true
+        row_filter: "region = user.assigned_region"
+        masked_columns: []
+
+  customer_return_rate:
+    id: "KPI-003"
+    name: "Product Return Rate"
+    category: "Customer Quality & Churn Risk"
+    formula: "COUNT(returns.return_id) / COUNT(orders.order_id)"
+    unit: "Percentage"
+    refresh_cadence: "daily"
+    materiality_threshold:
+      statistical_sigma: 2.50
+      business_impact_percentage: 3.00
+    lineage:
+      upstream_tables:
+        - "returns.claims"
+        - "wms.inspection_logs"
+        - "reviews.unstructured_feedback"
+
+  cold_start_ev_charger_sales:
+    id: "KPI-004"
+    name: "EV Smart Charger Sales (Newly Launched SKU)"
+    category: "New Product Launch"
+    formula: "SUM(orders.quantity WHERE sku_id = 'SKU-EV-CHARGER-01')"
+    unit: "Units"
+    refresh_cadence: "daily"
+    is_sparse_history: true
+    history_days: 11
+    cold_start_strategy: "Hierarchical Bayesian Prior Smoothing (Inherited from 'EV Accessories' Category)"
+    materiality_threshold:
+      statistical_sigma: 2.00
+      business_impact_units: 15
+
+# -------------------------------------------------------------
+# 3. PERSONA ENTITLEMENTS & DECISION RIGHTS (RBAC)
+# -------------------------------------------------------------
+personas:
+  vp_commercial:
+    role_title: "Chief Commercial Officer / VP Commercial"
+    scope: "Global Enterprise"
+    narrative_depth: "Executive Macro Strategy & Margin Impact"
+    actionable_levers: ["LEV-001", "Promotional Budget Reallocation", "Pricing Strategy"]
+    
+  regional_ops_lead:
+    role_title: "Regional Operations & Logistics Lead"
+    scope: "Assigned Regional Cluster (e.g. West Region)"
+    narrative_depth: "Tactical Execution, Carrier SLAs & Inventory Telemetry"
+    actionable_levers: ["LEV-002", "Backup Carrier Route Activation", "Warehouse Buffer Adjustment"]

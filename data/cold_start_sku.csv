@@ -1,0 +1,12 @@
+date,sku_id,sku_name,category,units_sold,launch_day_number,category_peer_avg_units
+2026-08-04,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,23,1,21.5
+2026-08-05,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,19,2,21.5
+2026-08-06,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,24,3,21.5
+2026-08-07,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,21,4,21.5
+2026-08-08,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,25,5,21.5
+2026-08-09,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,23,6,21.5
+2026-08-10,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,24,7,21.5
+2026-08-11,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,20,8,21.5
+2026-08-12,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,3,9,21.5
+2026-08-13,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,3,10,21.5
+2026-08-14,SKU-EV-CHARGER-01,EV Smart Charger Pack Pro,EV Accessories,4,11,21.5

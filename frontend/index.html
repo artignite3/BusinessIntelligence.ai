@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>BusinessIntelligence.ai — Governed KPI Intelligence-to-Action Canvas</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            accenture: {
+              purple: '#A100FF',
+              darkPurple: '#7E22CE',
+              lightPurple: '#F5F0FF',
+              borderPurple: '#D8B4FE',
+              glow: 'rgba(161, 0, 255, 0.25)',
+            },
+            space: {
+              950: '#070B14',
+              900: '#0D1322',
+              850: '#11192E',
+              800: '#1A243D',
+              700: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-space-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-accenture-purple selection:text-white flex flex-col justify-between">
+
+  <!-- ============================================================= -->
+  <!-- 1. TOP RESPONSIVE HEADER & GOVERNANCE BAR -->
+  <!-- ============================================================= -->
+  <header class="border-b border-slate-800/80 bg-space-900/90 backdrop-blur-xl sticky top-0 z-50 transition-all">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between gap-2">
+      
+      <!-- Brand Logo & Track Pill -->
+      <div class="flex items-center space-x-3 shrink-0">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-accenture-purple to-purple-800 flex items-center justify-center font-bold text-white shadow-lg shadow-purple-500/25 ring-1 ring-white/20">
+          <i data-lucide="brain-circuit" class="w-5 h-5 sm:w-5 sm:h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-white via-slate-100 to-purple-300 bg-clip-text text-transparent">
+              BusinessIntelligence.ai
+            </span>
+            <span class="hidden xs:inline-flex px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+              Round 2
+            </span>
+          </div>
+          <p class="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate max-w-[200px] sm:max-w-none">
+            Governed Causal KPI Engine & Adversarial Verification
+          </p>
+        </div>
+      </div>
+
+      <!-- Center: Governance Status (Desktop/Tablet) -->
+      <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-space-850/80 border border-slate-700/60 text-xs text-slate-300">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span class="font-semibold text-slate-200">Deterministic Statistical Core Active</span>
+        <span class="text-slate-600">|</span>
+        <span class="text-slate-400 font-mono text-[11px]">LLM: Groq LLaMA-3.3-70B</span>
+      </div>
+
+      <!-- Right: Contract Inspector & Persona Switcher -->
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <!-- View Contract Button -->
+        <button onclick="openContractModal()" title="View Semantic Data Contract" class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition">
+          <i data-lucide="file-code" class="w-3.5 h-3.5 text-purple-400"></i>
+          <span>Contract YAML</span>
+        </button>
+
+        <!-- Persona Role Switcher -->
+        <div class="relative">
+          <select id="personaSelect" onchange="handlePersonaChange(this.value)" class="bg-space-850 hover:bg-slate-800 border border-purple-500/40 text-slate-200 text-xs font-semibold rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-accenture-purple focus:outline-none transition cursor-pointer appearance-none pr-8 shadow-sm">
+            <option value="vp_commercial">👑 VP Commercial (Global)</option>
+            <option value="regional_ops_lead">🚛 Regional Ops Lead (Masked Costs)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============================================================= -->
+  <!-- 2. SCENARIO SELECTOR BAR (RESPONSIVE TOUCH ROW) -->
+  <!-- ============================================================= -->
+  <section class="bg-space-900/95 border-b border-slate-800/80 py-2.5 sticky top-16 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-2.5">
+      
+      <!-- Label -->
+      <div class="flex items-center space-x-2 text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">
+        <i data-lucide="layers" class="w-4 h-4 text-accenture-purple"></i>
+        <span>Benchmark Scenarios:</span>
+      </div>
+      
+      <!-- Buttons (Scrollable on Mobile) -->
+      <div class="flex items-center space-x-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
+        <button onclick="loadScenario('multi_factor')" id="btn-multi_factor" class="scenario-btn active-scenario shrink-0">
+          <i data-lucide="git-merge" class="w-3.5 h-3.5 text-purple-300"></i>
+          <span>Scenario 1: Multi-Factor Drop (Day 14)</span>
+        </button>
+
+        <button onclick="loadScenario('abstention')" id="btn-abstention" class="scenario-btn shrink-0">
+          <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Scenario 2: Low-Confidence Abstention (Day 21)</span>
+        </button>
+
+        <button onclick="loadScenario('cold_start')" id="btn-cold_start" class="scenario-btn shrink-0">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>Scenario 3: Cold-Start SKU (&lt; 14d)</span>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================= -->
+  <!-- 3. MAIN DASHBOARD CANVAS (RESPONSIVE GRID) -->
+  <!-- ============================================================= -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6 flex-1 w-full">
+
+    <!-- TOP ROW: KPI HERO CARDS (1 Col Mobile -> 2 Col Tablet -> 4 Col Desktop) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+      
+      <!-- Tile 1: Primary KPI -->
+      <div class="glass-card rounded-xl p-4 relative overflow-hidden group">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <span id="labelTile1">Net Revenue (Daily)</span>
+          <span id="badgeTile1" class="px-2 py-0.5 rounded text-[10px] bg-red-500/15 text-red-400 border border-red-500/30 font-bold font-mono">-8.4% Drop</span>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono" id="tileNetRevenue">$178,655.75</div>
+        <div class="text-[11px] text-slate-400 mt-1 flex items-center space-x-1.5">
+          <span class="text-red-400 font-semibold font-mono" id="deltaTile1">-$52,400.00</span>
+          <span id="subTile1">vs 7d Baseline ($231k)</span>
+        </div>
+      </div>
+
+      <!-- Tile 2: Fulfillment Rate -->
+      <div class="glass-card rounded-xl p-4 relative overflow-hidden group">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <span id="labelTile2">OTIF Fulfillment Rate</span>
+          <span id="badgeTile2" class="px-2 py-0.5 rounded text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold font-mono">Degraded</span>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono" id="tileOTIF">61.2%</div>
+        <div class="text-[11px] text-slate-400 mt-1 truncate" id="subTile2">West Port 48.5h Bottleneck</div>
+      </div>
+
+      <!-- Tile 3: Customer Voice Index -->
+      <div class="glass-card rounded-xl p-4 relative overflow-hidden group">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <span id="labelTile3">Customer Voice Sentiment</span>
+          <span id="tileSentimentTag" class="px-2 py-0.5 rounded text-[10px] bg-purple-500/15 text-purple-400 border border-purple-500/30 font-bold">Severe Negative</span>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono" id="tileSentiment">-0.72</div>
+        <div class="text-[11px] text-slate-400 mt-1 truncate" id="subTile3">40 Checkout & Shipping Tickets</div>
+      </div>
+
+      <!-- Tile 4: Bayesian Causal Confidence -->
+      <div class="glass-card rounded-xl p-4 relative overflow-hidden group" id="tileConfidenceContainer">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
+          <span>Causal Confidence</span>
+          <span id="confidenceBadge" class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold font-mono">88% (High)</span>
+        </div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-mono" id="tileConfidenceScore">88.4%</div>
+        <div class="text-[11px] text-emerald-400 mt-1 flex items-center space-x-1" id="tileConfidenceStatus">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 shrink-0"></i>
+          <span class="truncate">Attribution Mathematically Verified</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DYNAMIC AUTONOMOUS ABSTENTION BANNER -->
+    <div id="abstentionBanner" class="hidden p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-200 flex items-start space-x-3.5 shadow-lg shadow-amber-500/5 animate-soft-pulse">
+      <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 mt-0.5">
+        <i data-lucide="alert-octagon" class="w-5 h-5 text-amber-400"></i>
+      </div>
+      <div class="flex-1">
+        <div class="flex items-center justify-between flex-wrap gap-1">
+          <h4 class="font-bold text-xs sm:text-sm text-amber-300 tracking-wide uppercase">
+            ⚠️ Autonomous System Abstention Enforced (Confidence: 41.2% &lt; 60% Threshold)
+          </h4>
+          <span class="text-[10px] font-mono bg-amber-500/20 px-2 py-0.5 rounded text-amber-300 border border-amber-500/30 font-bold">Rule: Max Posterior &lt; 0.60</span>
+        </div>
+        <p class="text-xs text-amber-200/90 mt-1 leading-relaxed" id="abstentionBannerText">
+          Contradictory evidence detected between Logistics damage logs and 92% positive customer reviews. Automated supplier penalties suppressed pending physical warehouse audit.
+        </p>
+      </div>
+    </div>
+
+    <!-- MIDDLE ROW: TIME SERIES CHART + EXECUTIVE NARRATIVE CANVAS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      
+      <!-- LEFT: Dynamic Chart Canvas (7 Columns) -->
+      <div class="lg:col-span-7 glass-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="font-bold text-sm sm:text-base text-white flex items-center space-x-2">
+                <span>Time-Series Trajectory &amp; Anomaly Gatekeeper</span>
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">
+                STL Trend Decomposition + MAD Z-Score (|Z| ≥ 2.50σ). Shaded area denotes 95% Bayesian tolerance band.
+              </p>
+            </div>
+            <div class="flex items-center space-x-3 text-[11px] font-mono text-slate-400 shrink-0">
+              <span class="inline-flex items-center space-x-1">
+                <span class="w-2.5 h-2.5 bg-accenture-purple rounded-full"></span>
+                <span>Observed</span>
+              </span>
+              <span class="inline-flex items-center space-x-1">
+                <span class="w-2.5 h-2.5 bg-slate-500 rounded-full"></span>
+                <span>Trendline</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Chart Container -->
+          <div class="relative h-[240px] sm:h-[270px] w-full mt-2">
+            <canvas id="kpiChart"></canvas>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 font-mono">
+          <span class="flex items-center space-x-1.5 text-emerald-400">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            <span>Deterministic STL Execution: 18ms</span>
+          </span>
+          <span id="chartContextNote" class="text-slate-400">Target Anomaly Date: July 15, 2026</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: Persona Narrative & 7-Pillar Action Matrix (5 Columns) -->
+      <div class="lg:col-span-5 glass-card rounded-xl p-4 sm:p-5 flex flex-col justify-between space-y-4">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] uppercase font-bold tracking-wider text-purple-300 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/30" id="memoBadge">
+              Executive Brief — Persona Tailored
+            </span>
+            <span class="text-[11px] font-mono text-slate-400" id="memoModelTag">Groq LLaMA-3.3-70B</span>
+          </div>
+
+          <!-- Headline -->
+          <h3 class="font-bold text-sm sm:text-base text-white leading-snug tracking-tight" id="memoHeadline">
+            Loading Causal Executive Narrative...
+          </h3>
+
+          <!-- Narrative Body -->
+          <div class="text-xs text-slate-300 mt-2.5 space-y-2 leading-relaxed bg-space-950/80 p-3 sm:p-3.5 rounded-lg border border-slate-800/90 font-sans" id="memoBody">
+            Decomposing multi-factor drivers and scanning unstructured tickets...
+          </div>
+        </div>
+
+        <!-- 7-Pillar Action Box -->
+        <div class="pt-3 border-t border-slate-800/80">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span class="flex items-center space-x-1.5">
+              <i data-lucide="crosshair" class="w-3.5 h-3.5 text-accenture-purple"></i>
+              <span>7-Pillar Action Recommendation</span>
+            </span>
+            <span class="text-[10px] text-purple-400 font-mono" id="actionStatusTag">Ready for Execution</span>
+          </div>
+
+          <div class="bg-purple-950/25 border border-purple-500/30 rounded-lg p-3 space-y-2 text-xs text-slate-200">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="text-slate-400 font-medium">Controllable Lever:</span>
+              <span class="font-semibold text-purple-300 font-mono" id="actionLever">Warehouse Carrier Allocation</span>
+            </div>
+            <div>
+              <span class="text-slate-400 font-medium text-[11px]">Prescribed Action:</span>
+              <span class="font-medium text-white block mt-0.5 text-xs leading-snug" id="actionDesc">Reroute 65% of West outbound volume to Secondary Carrier B.</span>
+            </div>
+            <div class="flex justify-between items-center text-[11px] pt-1.5 text-slate-400 border-t border-purple-500/20 font-mono">
+              <span>Impact: <strong class="text-emerald-400" id="actionImpact">+$64,000 recovery</strong></span>
+              <span>Owner: <strong class="text-slate-300" id="actionOwner">VP Commercial</strong></span>
+            </div>
+          </div>
+
+          <!-- 1-Click Action & Feedback Buttons -->
+          <div class="mt-3 flex items-center space-x-2">
+            <button onclick="executeAction()" id="btnExecuteAction" class="flex-1 bg-gradient-to-r from-accenture-purple to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white text-xs font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/25 transition active:scale-[0.98]">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              <span>1-Click Execute Action</span>
+            </button>
+            <button onclick="openFeedbackModal()" title="Provide Analyst Feedback" class="bg-space-850 hover:bg-slate-800 text-slate-300 p-2.5 rounded-lg border border-slate-700 hover:border-purple-500/40 transition">
+              <i data-lucide="thumbs-up" class="w-4 h-4 text-slate-400 hover:text-emerald-400"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ROW: SHAPLEY DRIVERS + QUALITATIVE EVIDENCE EXPLORER -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      
+      <!-- Causal Driver Attribution Card (6 Cols) -->
+      <div class="lg:col-span-6 glass-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm sm:text-base text-white flex items-center space-x-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-accenture-purple"></i>
+              <span>Shapley Causal Attribution &amp; Mix-Shift</span>
+            </h3>
+            <span class="text-[11px] font-mono text-slate-400 bg-space-950 px-2 py-0.5 rounded border border-slate-800">Game-Theoretic Proof</span>
+          </div>
+
+          <div id="driverList" class="space-y-2.5">
+            <!-- Dynamic Driver Progress Bars Rendered Here -->
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-800 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-1" id="simpsonNote">
+          <span class="text-purple-300 font-semibold font-mono">Simpson's Paradox Check:</span>
+          <span class="text-slate-300">Localized to West Region (East/North unaffected)</span>
+        </div>
+      </div>
+
+      <!-- Unstructured Context & Ticket Evidence (6 Cols) -->
+      <div class="lg:col-span-6 glass-card rounded-xl p-4 sm:p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-sm sm:text-base text-white flex items-center space-x-2">
+              <i data-lucide="message-square" class="w-4 h-4 text-accenture-purple"></i>
+              <span>Customer Voice &amp; Support Evidence (pgvector)</span>
+            </h3>
+            <span class="text-[11px] text-slate-400 font-mono bg-space-950 px-2 py-0.5 rounded border border-slate-800">±48h Temporal Window</span>
+          </div>
+
+          <div id="evidenceList" class="space-y-2.5 overflow-y-auto max-h-[220px] pr-1 no-scrollbar">
+            <!-- Dynamic Evidence Cards Rendered Here -->
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+          <span class="font-mono text-[11px] text-slate-400">Embedding: sentence-transformers/all-MiniLM-L6-v2</span>
+          <span class="text-emerald-400 font-mono text-[11px]">Cosine Distance &lt; 0.28</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================= -->
+  <!-- 4. FLOATING RUNTIME TELEMETRY & ECONOMICS FOOTER -->
+  <!-- ============================================================= -->
+  <footer class="bg-space-900/95 border-t border-slate-800/90 py-2.5 px-3 sm:px-6 text-xs text-slate-400 sticky bottom-0 z-40 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      
+      <div class="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-[11px] sm:text-xs">
+        <span class="flex items-center space-x-1.5 text-slate-200 font-semibold">
+          <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i>
+          <span>Live Telemetry:</span>
+        </span>
+        <span>⏱️ End-to-End Latency: <strong class="text-white font-mono" id="telemLatency">345ms</strong></span>
+        <span>🪙 Tokens: <strong class="text-white font-mono" id="telemTokens">420</strong></span>
+        <span>💵 Cost / Insight: <strong class="text-emerald-400 font-mono" id="telemCost">$0.00028</strong></span>
+      </div>
+
+      <div class="flex items-center space-x-3 text-[11px] font-mono">
+        <span class="text-slate-400">RBAC: <strong class="text-purple-300 font-semibold" id="telemRbacStatus">Global View (Unmasked)</strong></span>
+        <span class="text-slate-600">|</span>
+        <span class="text-purple-400 font-semibold font-sans">AIC 2026</span>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ============================================================= -->
+  <!-- 5. FEEDBACK & ACTIVE LEARNING MODAL -->
+  <!-- ============================================================= -->
+  <div id="feedbackModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card bg-space-900 border border-purple-500/40 rounded-2xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl shadow-purple-500/20">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-white text-sm sm:text-base flex items-center space-x-2">
+          <i data-lucide="rotate-ccw" class="w-4 h-4 text-accenture-purple"></i>
+          <span>Active Learning Feedback Loop</span>
+        </h3>
+        <button onclick="closeFeedbackModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1.5">Confirm Primary Causal Driver:</label>
+          <select id="fbDriverSelect" class="w-full bg-space-950 border border-slate-700 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-accenture-purple focus:outline-none font-sans">
+            <option value="Logistics Dispatch & Port Bottleneck">Logistics Dispatch &amp; Port Bottleneck</option>
+            <option value="Payment Gateway Checkout Failures">Payment Gateway Checkout Failures</option>
+            <option value="Promotional Discount Over-Allocation">Promotional Discount Over-Allocation</option>
+            <option value="Customer Product Returns">Customer Product Returns</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1.5">Analyst Notes / Ground Truth Grounding:</label>
+          <textarea id="fbComment" rows="3" placeholder="e.g., Confirmed with West Port Authority that crane stoppage caused 48h container dispatch delays." class="w-full bg-space-950 border border-slate-700 text-white rounded-lg p-2.5 focus:ring-2 focus:ring-accenture-purple focus:outline-none leading-relaxed"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+        <button onclick="closeFeedbackModal()" class="px-3.5 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold hover:bg-slate-700 transition">Cancel</button>
+        <button onclick="submitAnalystFeedback()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-accenture-purple to-purple-700 text-white text-xs font-semibold hover:from-purple-600 hover:to-purple-800 shadow-md transition">Submit &amp; Update Bayesian Priors</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- 6. SEMANTIC DATA CONTRACT MODAL -->
+  <!-- ============================================================= -->
+  <div id="contractModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card bg-space-900 border border-purple-500/40 rounded-2xl max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl shadow-purple-500/20 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shield" class="w-5 h-5 text-accenture-purple"></i>
+          <h3 class="font-bold text-white text-sm sm:text-base">Governed KPI Semantic Contract (YAML)</h3>
+        </div>
+        <button onclick="closeContractModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="bg-space-950 p-3.5 rounded-lg border border-slate-800 overflow-y-auto flex-1 font-mono text-xs text-slate-300 leading-relaxed">
+        <pre><code class="text-purple-300">version: "1.0.0"
+metadata:
+  organization: "Enterprise Commercial & Operations"
+  engine: "BusinessIntelligence.ai Governance Layer"
+
+kpi_contracts:
+  net_revenue:
+    id: "KPI-001"
+    name: "Net Revenue"
+    formula: "SUM(orders.gross_amount) - SUM(orders.discounts) - SUM(returns.refund_value)"
+    refresh_cadence: "daily_midnight"
+    materiality_threshold:
+      statistical_sigma: 2.50
+      business_impact_usd: 50000.00
+    security_policy:
+      vp_commercial: { can_view: true, masked_columns: [] }
+      regional_ops_lead: { can_view: true, row_filter: "region = user.assigned_region", masked_columns: ["margin_cost"] }
+
+  on_time_fulfillment_rate:
+    id: "KPI-002"
+    name: "On-Time In-Full (OTIF) Delivery Rate"
+    formula: "COUNT(shipments WHERE delivery_time <= promised) / COUNT(shipments)"
+    refresh_cadence: "hourly"
+    materiality_threshold: { statistical_sigma: 2.00, business_impact_pct: 5.0 }
+
+  cold_start_ev_charger_sales:
+    id: "KPI-004"
+    name: "EV Smart Charger Sales (New Launch SKU)"
+    is_sparse_history: true
+    history_days: 11
+    cold_start_strategy: "Hierarchical Bayesian Category Prior Smoothing"</code></pre>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-slate-800">
+        <button onclick="closeContractModal()" class="px-4 py-2 rounded-lg bg-accenture-purple text-white text-xs font-semibold hover:bg-purple-600 transition">Close Contract</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-14 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

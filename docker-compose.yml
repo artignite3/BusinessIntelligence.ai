@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  business-intelligence-engine:
+    build: .
+    container_name: business_intelligence_ai_app
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+    volumes:
+      - ./data:/app/data
+      - ./contracts:/app/contracts
+    restart: unless-stopped
