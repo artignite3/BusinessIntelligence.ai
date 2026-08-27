@@ -1,78 +1,60 @@
-/**
- * BUSINESSINTELLIGENCE.AI — FRONTEND LOGIC & DATA ENGINE
- * Universal responsive chart engine, persona switching, scenario handling,
- * REST API client with offline fallback, and toast notifications.
- */
-
 const API_BASE = "http://127.0.0.1:8000";
 let kpiChartInstance = null;
 let currentScenario = "multi_factor";
 let currentPersona = "vp_commercial";
+let currentTheme = "dark";
 
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.lucide) {
-    lucide.createIcons();
-  }
+  if (window.lucide) lucide.createIcons();
   initChart();
   loadScenario("multi_factor");
 });
 
-// -------------------------------------------------------------
-// 1. RESPONSIVE CHART.JS ENGINE
-// -------------------------------------------------------------
+// ── Chart Initialisation ─────────────────────────────────────
 function initChart() {
   const ctx = document.getElementById("kpiChart").getContext("2d");
 
-  // Create purple gradient for area fill
-  const gradient = ctx.createLinearGradient(0, 0, 0, 270);
-  gradient.addColorStop(0, "rgba(161, 0, 255, 0.28)");
-  gradient.addColorStop(1, "rgba(161, 0, 255, 0.0)");
+  const grad = ctx.createLinearGradient(0, 0, 0, 250);
+  grad.addColorStop(0, "rgba(124,58,237,0.28)");
+  grad.addColorStop(1, "rgba(124,58,237,0.01)");
 
-  const labels = [];
-  const actualData = [];
-  const trendData = [];
+  const labels = [], actual = [], trend = [];
+  const start = new Date(2026, 6, 1);
 
-  const startDate = new Date(2026, 6, 1);
   for (let i = 0; i < 30; i++) {
-    const d = new Date(startDate);
+    const d = new Date(start);
     d.setDate(d.getDate() + i);
-    const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    labels.push(label);
+    labels.push(d.toLocaleDateString("en-US", { month: "short", day: "numeric" }));
 
-    const baseVal = 220000 + Math.sin(i / 2.2) * 8500;
-    trendData.push(baseVal);
-
-    if (i === 14) {
-      actualData.push(178655.75); // Day 14 Anomaly Drop
-    } else {
-      actualData.push(baseVal + (Math.random() * 5000 - 2500));
-    }
+    const base = 220000 + Math.sin(i / 2.2) * 8500;
+    trend.push(base);
+    actual.push(i === 14 ? 178655.75 : base + (Math.random() * 5000 - 2500));
   }
 
   kpiChartInstance = new Chart(ctx, {
     type: "line",
     data: {
-      labels: labels,
+      labels,
       datasets: [
         {
-          label: "Observed Net Revenue",
-          data: actualData,
-          borderColor: "#A100FF",
-          backgroundColor: gradient,
+          label: "Net Revenue",
+          data: actual,
+          borderColor: "#7C3AED",
+          backgroundColor: grad,
           borderWidth: 2.5,
           fill: true,
           tension: 0.35,
-          pointRadius: (c) => (c.dataIndex === 14 ? 7 : 2),
-          pointHoverRadius: 8,
-          pointBackgroundColor: (c) => (c.dataIndex === 14 ? "#EF4444" : "#A100FF"),
-          pointBorderColor: "#FFFFFF",
-          pointBorderWidth: (c) => (c.dataIndex === 14 ? 2.5 : 0),
+          pointRadius: (c) => (c.dataIndex === 14 ? 6 : 0),
+          pointHoverRadius: 7,
+          pointBackgroundColor: (c) => (c.dataIndex === 14 ? "#EF4444" : "#7C3AED"),
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
         },
         {
-          label: "STL Seasonal Baseline",
-          data: trendData,
+          label: "Trend Baseline",
+          data: trend,
           borderColor: "#64748B",
-          borderDash: [5, 5],
+          borderDash: [4, 4],
           borderWidth: 1.5,
           pointRadius: 0,
           fill: false,
@@ -82,21 +64,16 @@ function initChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        mode: "index",
-        intersect: false,
-      },
+      interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: "rgba(13, 19, 34, 0.95)",
-          titleFont: { family: "Inter", size: 12, weight: "bold" },
-          bodyFont: { family: "JetBrains Mono", size: 11 },
-          borderColor: "rgba(161, 0, 255, 0.4)",
+          backgroundColor: "rgba(17,24,39,0.96)",
+          titleFont: { family: "Inter", size: 11, weight: "bold" },
+          bodyFont: { family: "JetBrains Mono", size: 10 },
+          borderColor: "rgba(124,58,237,0.35)",
           borderWidth: 1,
           padding: 10,
-          boxPadding: 4,
-          usePointStyle: true,
           callbacks: {
             label: (c) => ` ${c.dataset.label}: $${Math.round(c.parsed.y).toLocaleString()}`
           }
@@ -104,21 +81,15 @@ function initChart() {
       },
       scales: {
         x: {
-          grid: { color: "rgba(51, 65, 85, 0.25)" },
-          ticks: {
-            color: "#94A3B8",
-            font: { family: "Inter", size: 10 },
-            maxRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 8
-          }
+          grid: { color: "rgba(71,85,105,0.20)" },
+          ticks: { color: "#64748B", font: { family: "Inter", size: 10 }, maxTicksLimit: 8 }
         },
         y: {
-          grid: { color: "rgba(51, 65, 85, 0.25)" },
+          grid: { color: "rgba(71,85,105,0.20)" },
           ticks: {
-            color: "#94A3B8",
+            color: "#64748B",
             font: { family: "JetBrains Mono", size: 10 },
-            callback: (val) => `$${val / 1000}k`
+            callback: (v) => `$${(v / 1000).toFixed(0)}k`
           }
         }
       }
@@ -126,392 +97,441 @@ function initChart() {
   });
 }
 
-// -------------------------------------------------------------
-// 2. SCENARIO & PERSONA STATE MANAGEMENT
-// -------------------------------------------------------------
+// ── Scenario & Persona Loading ───────────────────────────────
 async function loadScenario(scenarioId) {
   currentScenario = scenarioId;
 
-  document.querySelectorAll(".scenario-btn").forEach(btn => btn.classList.remove("active-scenario"));
-  const activeBtn = document.getElementById(`btn-${scenarioId}`);
-  if (activeBtn) activeBtn.classList.add("active-scenario");
+  document.querySelectorAll(".scenario-btn").forEach(b => b.classList.remove("active-scenario"));
+  const active = document.getElementById(`btn-${scenarioId}`);
+  if (active) active.classList.add("active-scenario");
 
   try {
     const res = await fetch(`${API_BASE}/api/scenarios/run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        scenario_id: scenarioId,
-        persona: currentPersona
-      })
+      body: JSON.stringify({ scenario_id: scenarioId, persona: currentPersona })
     });
-    if (res.ok) {
-      const data = await res.json();
-      renderScenarioUI(data);
-      return;
-    }
-  } catch (err) {
-    // Offline client simulation fallback
-  }
+    if (res.ok) { renderScenarioUI(await res.json()); return; }
+  } catch (_) {}
 
   renderOfflineScenario(scenarioId, currentPersona);
 }
 
-function handlePersonaChange(persona) {
-  currentPersona = persona;
-  const telemStatus = document.getElementById("telemRbacStatus");
-  if (persona === "vp_commercial") {
-    telemStatus.innerText = "Global View (Unmasked Margins)";
-    showToast("Switched to VP Commercial: Global Strategy & Unmasked Margins enabled.", "info");
-  } else {
-    telemStatus.innerText = "West Region (Margins Masked by RBAC)";
-    showToast("Switched to Regional Ops Lead: Financial margins masked under RBAC Policy #4.", "warning");
+// ── Persona Custom Dropdown Handlers ──────────────────────────
+function togglePersonaMenu(e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  const dd = document.getElementById("personaDropdown");
+  const menu = document.getElementById("personaMenu");
+  if (!menu || !dd) return;
+  
+  const isHidden = menu.style.display === "none" || menu.style.display === "";
+  menu.style.display = isHidden ? "block" : "none";
+  dd.classList.toggle("open", isHidden);
+}
+
+function selectPersona(value, label, e) {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  currentPersona = value;
+  const labelEl = document.getElementById("personaBtnLabel");
+  if (labelEl) labelEl.textContent = label;
+
+  const menu = document.getElementById("personaMenu");
+  if (menu) menu.style.display = "none";
+  const dd = document.getElementById("personaDropdown");
+  if (dd) dd.classList.remove("open");
+
+  const status = document.getElementById("telemRbacStatus");
+  if (status) {
+    if (value === "vp_commercial") {
+      status.textContent = "Global View";
+      showToast("Switched to VP Commercial — full margins visible.", "info");
+    } else {
+      status.textContent = "West Region (Masked)";
+      showToast("Switched to Regional Ops Lead — margin columns masked by RBAC.", "warning");
+    }
   }
   loadScenario(currentScenario);
 }
 
-// -------------------------------------------------------------
-// 3. UI RENDERING ENGINE
-// -------------------------------------------------------------
+// Close dropdown when clicking anywhere outside it
+document.addEventListener("click", (e) => {
+  const dd = document.getElementById("personaDropdown");
+  if (dd && !dd.contains(e.target)) {
+    const menu = document.getElementById("personaMenu");
+    if (menu) menu.style.display = "none";
+    dd.classList.remove("open");
+  }
+});
+
+// ── UI Rendering ─────────────────────────────────────────────
 function renderScenarioUI(data) {
-  const memo = data.executive_memo;
-  const telem = data.telemetry;
+  const memo = data.executive_memo || {};
+  const telem = data.telemetry || {};
 
   if (data.scenario_id === "multi_factor") {
-    document.getElementById("labelTile1").innerText = "Net Revenue (Daily)";
-    document.getElementById("badgeTile1").innerText = "-8.4% Drop";
-    document.getElementById("badgeTile1").className = "px-2 py-0.5 rounded text-[10px] bg-red-500/15 text-red-400 border border-red-500/30 font-bold font-mono";
-    document.getElementById("tileNetRevenue").innerText = "$178,655.75";
-    document.getElementById("deltaTile1").innerText = "-$52,400.00";
-    document.getElementById("subTile1").innerText = "vs 7d Baseline ($231k)";
+    setTile("labelTile1", "Net Revenue (Daily)");
+    setBadge("badgeTile1", "−8.4%", "badge-red");
+    document.getElementById("tileNetRevenue").textContent = "$178,655";
+    document.getElementById("deltaTile1").textContent = "−$52,400";
+    document.getElementById("subTile1").textContent = "vs 7-day baseline ($231k)";
 
-    document.getElementById("labelTile2").innerText = "OTIF Fulfillment Rate";
-    document.getElementById("tileOTIF").innerText = "61.2%";
-    document.getElementById("subTile2").innerText = "West Port 48.5h Bottleneck";
+    setTile("labelTile2", "OTIF Fulfillment");
+    setBadge("badgeTile2", "Degraded", "badge-amber");
+    document.getElementById("tileOTIF").textContent = "61.2%";
+    document.getElementById("subTile2").textContent = "West Port 48.5h Bottleneck";
 
-    document.getElementById("labelTile3").innerText = "Customer Voice Sentiment";
-    document.getElementById("tileSentiment").innerText = "-0.72";
-    document.getElementById("tileSentimentTag").innerText = "Severe Negative";
-    document.getElementById("subTile3").innerText = "40 Checkout & Shipping Tickets";
+    setTile("labelTile3", "Customer Sentiment");
+    setBadge("tileSentimentTag", "Severe Neg.", "badge-purple");
+    document.getElementById("tileSentiment").textContent = "−0.72";
+    document.getElementById("subTile3").textContent = "40 checkout & shipping tickets";
 
-    document.getElementById("confidenceBadge").className = "px-2 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold font-mono";
-    document.getElementById("confidenceBadge").innerText = "88% (High)";
-    document.getElementById("tileConfidenceScore").innerText = "88.4%";
-    document.getElementById("tileConfidenceStatus").innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 shrink-0"></i><span class="truncate">Attribution Mathematically Verified</span>`;
+    setBadge("confidenceBadge", "88% High", "badge-green");
+    document.getElementById("tileConfidenceScore").textContent = "88.4%";
+    setConfStatus("check-circle", "#10B981", "Attribution verified");
 
-    document.getElementById("abstentionBanner").classList.add("hidden");
-    document.getElementById("chartContextNote").innerText = "Target Anomaly Date: July 15, 2026 (West Region)";
+    hideAbstention();
+    document.getElementById("chartContextNote").textContent = "Target: July 15, 2026 — West Region";
+
   } else if (data.scenario_id === "abstention") {
-    document.getElementById("labelTile1").innerText = "Product Return Rate";
-    document.getElementById("badgeTile1").innerText = "+14.0% Surge";
-    document.getElementById("badgeTile1").className = "px-2 py-0.5 rounded text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold font-mono";
-    document.getElementById("tileNetRevenue").innerText = "18.2%";
-    document.getElementById("deltaTile1").innerText = "+350% Spike";
-    document.getElementById("subTile1").innerText = "vs 4.0% Baseline";
+    setTile("labelTile1", "Product Return Rate");
+    setBadge("badgeTile1", "+14.0%", "badge-amber");
+    document.getElementById("tileNetRevenue").textContent = "18.2%";
+    document.getElementById("deltaTile1").textContent = "+350% Spike";
+    document.getElementById("subTile1").textContent = "vs 4.0% baseline";
 
-    document.getElementById("labelTile2").innerText = "Courier Damage Claims";
-    document.getElementById("tileOTIF").innerText = "45 Claims";
-    document.getElementById("subTile2").innerText = "Carrier C Transit Mishandling";
+    setTile("labelTile2", "Courier Damage Claims");
+    setBadge("badgeTile2", "45 Claims", "badge-red");
+    document.getElementById("tileOTIF").textContent = "45";
+    document.getElementById("subTile2").textContent = "Carrier C Transit Mishandling";
 
-    document.getElementById("labelTile3").innerText = "Product Review Sentiment";
-    document.getElementById("tileSentiment").innerText = "+0.62";
-    document.getElementById("tileSentimentTag").innerText = "92% Positive";
-    document.getElementById("subTile3").innerText = "Audio Quality Loved by Users";
+    setTile("labelTile3", "Product Review Score");
+    setBadge("tileSentimentTag", "92% Positive", "badge-green");
+    document.getElementById("tileSentiment").textContent = "+0.62";
+    document.getElementById("subTile3").textContent = "Audio quality loved by users";
 
-    document.getElementById("confidenceBadge").className = "px-2 py-0.5 rounded text-[10px] bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold font-mono";
-    document.getElementById("confidenceBadge").innerText = "41% (Abstained)";
-    document.getElementById("tileConfidenceScore").innerText = "41.2%";
-    document.getElementById("tileConfidenceStatus").innerHTML = `<i data-lucide="alert-triangle" class="w-3.5 h-3.5 shrink-0 text-amber-400"></i><span class="text-amber-300 truncate">Below 60% Decision Threshold</span>`;
+    setBadge("confidenceBadge", "41% — Abstained", "badge-amber");
+    document.getElementById("tileConfidenceScore").textContent = "41.2%";
+    setConfStatus("alert-triangle", "#F59E0B", "Below 60% threshold");
 
-    document.getElementById("abstentionBanner").classList.remove("hidden");
-    document.getElementById("abstentionBannerText").innerText = data.bayesian_evaluation?.abstention_banner_text || "Contradictory evidence detected between Logistics damage logs and 92% positive reviews. Automated supplier penalties suppressed.";
-    document.getElementById("chartContextNote").innerText = "Target Anomaly Date: July 21, 2026 (Electronics Returns)";
+    showAbstention(data.bayesian_evaluation?.abstention_banner_text || "Contradictory evidence detected. Automated penalties suppressed.");
+    document.getElementById("chartContextNote").textContent = "Target: July 21, 2026 — Electronics Returns";
+
   } else if (data.scenario_id === "cold_start") {
-    document.getElementById("labelTile1").innerText = "EV Charger Sales (New SKU)";
-    document.getElementById("badgeTile1").innerText = "-86.0% Drop";
-    document.getElementById("badgeTile1").className = "px-2 py-0.5 rounded text-[10px] bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 font-bold font-mono";
-    document.getElementById("tileNetRevenue").innerText = "4 Units";
-    document.getElementById("deltaTile1").innerText = "-17.5 Units";
-    document.getElementById("subTile1").innerText = "vs Category Prior (21.5 Units)";
+    setTile("labelTile1", "EV Charger Units (Day 10)");
+    setBadge("badgeTile1", "−86.0%", "badge-cyan");
+    document.getElementById("tileNetRevenue").textContent = "4 Units";
+    document.getElementById("deltaTile1").textContent = "−17.5 Units";
+    document.getElementById("subTile1").textContent = "vs category prior (21.5 units)";
 
-    document.getElementById("labelTile2").innerText = "Empirical History Grain";
-    document.getElementById("tileOTIF").innerText = "11 Days";
-    document.getElementById("subTile2").innerText = "Sparse History (N < 14 Days)";
+    setTile("labelTile2", "Empirical History");
+    setBadge("badgeTile2", "Sparse (N<14)", "badge-cyan");
+    document.getElementById("tileOTIF").textContent = "11 Days";
+    document.getElementById("subTile2").textContent = "Hierarchical Bayesian applied";
 
-    document.getElementById("labelTile3").innerText = "Category Smoothing";
-    document.getElementById("tileSentiment").innerText = "+0.20";
-    document.getElementById("tileSentimentTag").innerText = "EV Accessories";
-    document.getElementById("subTile3").innerText = "Hierarchical Prior Active";
+    setTile("labelTile3", "Category Smoothing");
+    setBadge("tileSentimentTag", "EV Accessories", "badge-cyan");
+    document.getElementById("tileSentiment").textContent = "+0.20";
+    document.getElementById("subTile3").textContent = "Prior active — peer mean 21.5";
 
-    document.getElementById("confidenceBadge").className = "px-2 py-0.5 rounded text-[10px] bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 font-bold font-mono";
-    document.getElementById("confidenceBadge").innerText = "79% (Prior Inference)";
-    document.getElementById("tileConfidenceScore").innerText = "79.0%";
-    document.getElementById("tileConfidenceStatus").innerHTML = `<i data-lucide="sparkles" class="w-3.5 h-3.5 shrink-0 text-cyan-400"></i><span class="text-cyan-300 truncate">Bayesian Category Smoothing</span>`;
+    setBadge("confidenceBadge", "79% Prior", "badge-purple");
+    document.getElementById("tileConfidenceScore").textContent = "79.0%";
+    setConfStatus("sparkles", "#06B6D4", "Bayesian prior smoothing");
 
-    document.getElementById("abstentionBanner").classList.add("hidden");
-    document.getElementById("chartContextNote").innerText = "Target SKU: EV Smart Charger Pack Pro (Day 10)";
+    hideAbstention();
+    document.getElementById("chartContextNote").textContent = "SKU: EV Smart Charger Pack Pro — Day 10";
   }
 
-  // Narrative & 7-Pillar Action Plan
-  document.getElementById("memoHeadline").innerText = memo.executive_headline;
-  document.getElementById("memoBody").innerText = memo.grounded_narrative;
-  
-  const action = memo.seven_pillar_action_matrix;
-  document.getElementById("actionLever").innerText = action.controllable_lever;
-  document.getElementById("actionDesc").innerText = action.action;
-  document.getElementById("actionImpact").innerText = action.expected_impact;
-  document.getElementById("actionOwner").innerText = action.owner;
+  // Narrative
+  document.getElementById("memoHeadline").textContent = memo.executive_headline || "";
+  document.getElementById("memoBody").textContent = memo.grounded_narrative || "";
+
+  const action = memo.seven_pillar_action_matrix || {};
+  document.getElementById("actionLever").textContent = action.controllable_lever || "";
+  document.getElementById("actionDesc").textContent = action.action || "";
+  document.getElementById("actionImpact").textContent = action.expected_impact || "";
+  document.getElementById("actionOwner").textContent = action.owner || "";
 
   renderDriverBars(data);
   renderEvidenceTickets(data);
 
-  if (telem) {
-    document.getElementById("telemLatency").innerText = `${telem.total_pipeline_latency_ms || 345}ms`;
-    document.getElementById("telemTokens").innerText = `${telem.tokens_consumed || 420}`;
-    document.getElementById("telemCost").innerText = `$${telem.cost_usd || 0.00028}`;
+  if (telem.total_pipeline_latency_ms) {
+    document.getElementById("telemLatency").textContent = `${telem.total_pipeline_latency_ms}ms`;
+    document.getElementById("telemTokens").textContent = `${telem.tokens_consumed || 420}`;
+    document.getElementById("telemCost").textContent = `$${telem.cost_usd || 0.00028}`;
   }
 
   if (window.lucide) lucide.createIcons();
 }
 
+function setTile(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function setBadge(id, text, cls) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.textContent = text;
+    el.className = `badge ${cls}`;
+  }
+}
+
+function setConfStatus(icon, iconColor, label) {
+  const el = document.getElementById("tileConfidenceStatus");
+  if (el) {
+    el.innerHTML = `<i data-lucide="${icon}" style="width:12px;height:12px;color:${iconColor};flex-shrink:0;"></i>
+     <span style="color:${iconColor};font-weight:600;">${label}</span>`;
+  }
+}
+
+function showAbstention(text) {
+  const el = document.getElementById("abstentionBanner");
+  if (el) {
+    el.style.display = "block";
+    document.getElementById("abstentionBannerText").textContent = text;
+  }
+}
+
+function hideAbstention() {
+  const el = document.getElementById("abstentionBanner");
+  if (el) el.style.display = "none";
+}
+
+// ── Shapley Driver (SCA) Progress Bars ───────────────────────
 function renderDriverBars(data) {
-  const driverList = document.getElementById("driverList");
-  driverList.innerHTML = "";
+  const list = document.getElementById("driverList");
+  if (!list) return;
+  list.innerHTML = "";
 
   const drivers = data.causal_attribution?.ranked_drivers || [
-    { driver_name: "Promotional Discount Over-Allocation", shapley_contribution_pct: 59.1, variance_explained_usd: 3418 },
-    { driver_name: "Logistics Dispatch & Port Bottleneck", shapley_contribution_pct: 38.2, variance_explained_usd: 2211 },
-    { driver_name: "Customer Product Returns", shapley_contribution_pct: 2.7, variance_explained_usd: 156 }
+    { driver_name: "Promotional Discount Over-Allocation", shapley_contribution_pct: 59.1, variance_explained_usd: 3418, confidence_band: "High (p < 0.01)" },
+    { driver_name: "Logistics Dispatch & Port Bottleneck",  shapley_contribution_pct: 38.2, variance_explained_usd: 2211, confidence_band: "High (p < 0.01)" },
+    { driver_name: "Customer Product Returns",              shapley_contribution_pct: 2.7,  variance_explained_usd: 156,  confidence_band: "Moderate" }
   ];
 
-  drivers.forEach((d) => {
+  drivers.forEach(d => {
     const item = document.createElement("div");
-    item.className = "bg-space-950/80 p-3 rounded-lg border border-slate-800/90 space-y-1.5";
+    item.style.cssText = "display:flex;flex-direction:column;gap:6px;";
     item.innerHTML = `
-      <div class="flex justify-between items-center text-xs">
-        <span class="font-medium text-slate-200">${d.driver_name}</span>
-        <span class="font-bold text-purple-300 font-mono">${d.shapley_contribution_pct}%</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+        <span style="color:var(--text-1);font-weight:600;">${d.driver_name}</span>
+        <span style="color:var(--purple-light);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:13px;">${d.shapley_contribution_pct}%</span>
       </div>
-      <div class="w-full bg-slate-800/90 rounded-full h-2 overflow-hidden">
-        <div class="bg-gradient-to-r from-purple-500 to-accenture-purple h-2 rounded-full transition-all duration-700" style="width: ${d.shapley_contribution_pct}%"></div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:${d.shapley_contribution_pct}%;"></div>
       </div>
-      <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono">
-        <span>Variance Impact: $${(d.variance_explained_usd || 0).toLocaleString()}</span>
-        <span class="text-emerald-400 font-semibold">${d.confidence_band || 'High (p < 0.01)'}</span>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-weight:500;">
+        <span>Variance: $${(d.variance_explained_usd || 0).toLocaleString()}</span>
+        <span style="color:#10B981;font-weight:600;">${d.confidence_band || "High"}</span>
       </div>
     `;
-    driverList.appendChild(item);
+    list.appendChild(item);
   });
 }
 
+// ── Customer Evidence Tickets ────────────────────────────────
 function renderEvidenceTickets(data) {
-  const evList = document.getElementById("evidenceList");
-  evList.innerHTML = "";
+  const list = document.getElementById("evidenceList");
+  if (!list) return;
+  list.innerHTML = "";
 
   let evidence = data.qualitative_evidence?.retrieved_evidence;
   if (!evidence || evidence.length === 0) {
-    if (data.scenario_id === "abstention") {
-      evidence = [
-        { ticket_id: "TCK-1240", topic: "Courier Transit Damage", excerpt: "The headphones sound amazing! 5 stars for sound, but outer delivery box was completely crushed by courier.", sentiment_score: 0.65 },
-        { ticket_id: "TCK-1244", topic: "Courier Transit Damage", excerpt: "Product itself works perfectly, but shipping box was torn open. 5 stars for audio quality, 1 star for delivery.", sentiment_score: 0.60 }
-      ];
-    } else {
-      evidence = [
-        { ticket_id: "TCK-1042", topic: "Payment Gateway Failure", excerpt: "Card charged twice on iOS checkout but order status still shows pending with error #504.", sentiment_score: -0.88 },
-        { ticket_id: "TCK-1045", topic: "Logistics Port Bottleneck", excerpt: "Order delayed by 3 days at West Coast Distribution Port. Tracking not updating!", sentiment_score: -0.82 }
-      ];
-    }
+    evidence = data.scenario_id === "abstention"
+      ? [
+          { ticket_id: "TCK-1240", topic: "Courier Transit Damage", excerpt: "Sound quality is amazing but the delivery box was completely crushed by courier.", sentiment_score: 0.65 },
+          { ticket_id: "TCK-1244", topic: "Courier Transit Damage", excerpt: "Product works perfectly — 5 stars for audio. Outer packaging was torn open on arrival.", sentiment_score: 0.60 }
+        ]
+      : [
+          { ticket_id: "TCK-1042", topic: "Payment Gateway Failure", excerpt: "Card charged twice on iOS checkout but order still shows pending with error #504.", sentiment_score: -0.88 },
+          { ticket_id: "TCK-1045", topic: "Logistics Bottleneck",   excerpt: "Order delayed 3 days at West Coast Distribution Port. Tracking not updating.", sentiment_score: -0.82 }
+        ];
   }
 
-  evidence.forEach((ev) => {
+  evidence.forEach(ev => {
+    const isNeg = ev.sentiment_score < -0.3;
     const card = document.createElement("div");
-    card.className = "bg-space-950/90 p-3 rounded-lg border border-slate-800/90 text-xs space-y-1.5";
-    const sentColor = ev.sentiment_score < -0.3 ? "text-red-400 bg-red-500/15 border-red-500/30" : "text-emerald-400 bg-emerald-500/15 border-emerald-500/30";
-    
-    card.innerHTML = `
-      <div class="flex items-center justify-between">
-        <span class="font-mono text-[11px] font-bold text-slate-400">${ev.ticket_id}</span>
-        <span class="px-2 py-0.5 text-[10px] font-semibold rounded border ${sentColor}">${ev.topic}</span>
-      </div>
-      <p class="text-slate-300 text-xs leading-relaxed italic">"${ev.excerpt}"</p>
+    card.className = "evidence-card";
+    card.style.cssText = `
+      background:var(--bg-raised);
+      border:1px solid var(--border);
+      border-radius:8px;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex-shrink:0;
     `;
-    evList.appendChild(card);
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;font-weight:700;">${ev.ticket_id}</span>
+        <span class="badge ${isNeg ? "badge-red" : "badge-green"}">${ev.topic}</span>
+      </div>
+      <p class="evidence-excerpt" style="font-size:11px;color:var(--text-2);line-height:1.55;margin:0;font-style:italic;font-weight:500;">"${ev.excerpt}"</p>
+    `;
+    list.appendChild(card);
   });
 }
 
+// ── Offline Fallback ─────────────────────────────────────────
 function renderOfflineScenario(scenarioId, persona) {
-  if (scenarioId === "multi_factor") {
-    renderScenarioUI({
-      scenario_id: "multi_factor",
-      executive_memo: {
-        executive_headline: persona === "vp_commercial"
-          ? "Executive Alert: West Region Net Revenue fell by $52,400.00 driven by Logistics Port Bottleneck & Checkout Failures."
-          : "Operations Action Memo: West Distribution Port Bottleneck causing 48.5h dispatch delays and 18% cancellation spikes.",
-        grounded_narrative: persona === "vp_commercial"
-          ? "On July 15, West Region Net Revenue dropped 8.4%. Deterministic Shapley decomposition isolates: Promotional Discount Over-Allocation (59.1%), Logistics Port Bottleneck (38.2%), and iOS Checkout Timeouts (2.7%). East and North regions remained unaffected."
-          : "FastExpress Carrier A suffered a 48.5-hour dispatch bottleneck at West Distribution Center, driving an OTIF collapse to 61.2%. Financial margins are masked under regional security policies.",
-        seven_pillar_action_matrix: {
-          controllable_lever: persona === "vp_commercial" ? "Promotional Budget Reallocation & Air-Freight Buffer" : "Warehouse Carrier Route Allocation",
-          action: persona === "vp_commercial" ? "Approve $25k expedited air-freight buffer and cap West region flash discounts at 10%." : "Execute 1-Click Reroute: Shift 65% of West Region outbound volume to Backup Carrier BlueDart B.",
-          expected_impact: "+$64,000 revenue recovery within 5 business days",
-          owner: persona === "vp_commercial" ? "VP Commercial / CCO" : "Regional Operations Lead"
-        }
-      },
-      telemetry: { total_pipeline_latency_ms: 345, tokens_consumed: 420, cost_usd: 0.00028 }
-    });
-  } else if (scenarioId === "abstention") {
-    renderScenarioUI({
-      scenario_id: "abstention",
-      bayesian_evaluation: {
-        abstention_banner_text: "⚠️ SYSTEM ABSTAINED: Evidence is contradictory between logistics damage claims and 92% positive product reviews. Automated supplier penalties suppressed."
-      },
-      executive_memo: {
-        executive_headline: "⚠️ SYSTEM ABSTAINED: Contradictory Evidence Detected — Automated Supplier Penalty Suppressed.",
-        grounded_narrative: "Product returns spiked +14% in Electronics, but customer sentiment is 92% positive regarding sound quality. Courier damage logs show 45 transit crushing events. Bayesian posterior confidence (41.2%) is below the 60% threshold, enforcing autonomous abstention.",
-        seven_pillar_action_matrix: {
-          controllable_lever: "Mandatory Physical Inspection Protocol",
-          action: "Quarantine and audit 50 returned packages at Central Warehouse to verify courier vs. hardware failure.",
-          expected_impact: "Prevents false supplier disputes and guarantees 100% empirical ground truth.",
-          owner: "QA & Logistics Audit Lead"
-        }
-      },
-      telemetry: { total_pipeline_latency_ms: 285, tokens_consumed: 380, cost_usd: 0.00025 }
-    });
-  } else if (scenarioId === "cold_start") {
-    renderScenarioUI({
-      scenario_id: "cold_start",
-      executive_memo: {
-        executive_headline: "New Launch Alert: EV Smart Charger Pack Pro experienced sudden Day 10 drop outside Bayesian Category Bands.",
-        grounded_narrative: "With only 11 days of empirical history, standard STL cannot run. Hierarchical Bayesian Prior Smoothing (inherited from 'EV Accessories' peer mean of 21.5 units) flagged Day 10 sales (4 units) breaching the 95% lower bound (15.2 units) due to post-launch promo conclusion.",
-        seven_pillar_action_matrix: {
-          controllable_lever: "Targeted Category Retargeting Campaign",
-          action: "Deploy automated email re-engagement campaign to existing EV Accessories customers.",
-          expected_impact: "Restore unit velocity to category peer baseline (18-22 units/day).",
-          owner: "Growth Marketing Lead"
-        }
-      },
-      telemetry: { total_pipeline_latency_ms: 260, tokens_consumed: 350, cost_usd: 0.00022 }
-    });
-  }
+  const vp = persona === "vp_commercial";
+
+  const memos = {
+    multi_factor: {
+      executive_headline: vp
+        ? "Executive Alert: West Region Net Revenue fell by $52,400 driven by Logistics Port Bottleneck & Checkout Failures."
+        : "Ops Memo: West Distribution Port Bottleneck causing 48.5h dispatch delays and 18% cancellation spikes.",
+      grounded_narrative: vp
+        ? "July 15 — West Region dropped 8.4%. Shapley decomposition: Promotional Discount Over-Allocation (59.1%), Logistics Port Bottleneck (38.2%), iOS Checkout Timeouts (2.7%). East and North unaffected."
+        : "FastExpress Carrier A suffered a 48.5h bottleneck at West DC, driving OTIF collapse to 61.2%. Financial margins are masked under regional RBAC policy.",
+      seven_pillar_action_matrix: {
+        controllable_lever: vp ? "Promo Budget Reallocation & Air-Freight Buffer" : "Warehouse Carrier Route Allocation",
+        action: vp ? "Approve $25k air-freight buffer and cap West flash discounts at 10%." : "Shift 65% of West outbound to Backup Carrier BlueDart B.",
+        expected_impact: "+$64,000 revenue recovery within 5 business days",
+        owner: vp ? "VP Commercial / CCO" : "Regional Operations Lead"
+      }
+    },
+    abstention: {
+      executive_headline: "⚠ SYSTEM ABSTAINED: Contradictory Evidence — Automated Supplier Penalty Suppressed.",
+      grounded_narrative: "Returns spiked +14% in Electronics, but sentiment is 92% positive on sound quality. Courier damage logs show 45 transit crush events. Bayesian posterior (41.2%) is below the 60% threshold — abstention enforced.",
+      seven_pillar_action_matrix: {
+        controllable_lever: "Mandatory Physical Inspection Protocol",
+        action: "Quarantine and audit 50 returned packages at Central Warehouse.",
+        expected_impact: "Prevents false supplier disputes. 100% empirical ground truth.",
+        owner: "QA & Logistics Audit Lead"
+      }
+    },
+    cold_start: {
+      executive_headline: "Launch Alert: EV Smart Charger Pack Pro — Day 10 drop outside Bayesian category bands.",
+      grounded_narrative: "With 11 days of history, STL cannot run. Hierarchical Bayesian Prior (EV Accessories peer mean: 21.5 units) flagged Day 10 (4 units) below the 95% lower bound (15.2 units). Post-launch email promo ended Day 8 without follow-up.",
+      seven_pillar_action_matrix: {
+        controllable_lever: "Targeted Category Retargeting Campaign",
+        action: "Deploy automated re-engagement email to existing EV Accessories customers.",
+        expected_impact: "Restore velocity to peer baseline (18–22 units/day).",
+        owner: "Growth Marketing Lead"
+      }
+    }
+  };
+
+  renderScenarioUI({
+    scenario_id: scenarioId,
+    executive_memo: memos[scenarioId],
+    bayesian_evaluation: scenarioId === "abstention"
+      ? { abstention_banner_text: "⚠ SYSTEM ABSTAINED: Evidence is contradictory between logistics claims and 92% positive product reviews. Automated supplier penalties suppressed." }
+      : null,
+    telemetry: { total_pipeline_latency_ms: 345, tokens_consumed: 420, cost_usd: 0.00028 }
+  });
 }
 
-// -------------------------------------------------------------
-// 4. ACTION DISPATCH & TOAST NOTIFICATIONS
-// -------------------------------------------------------------
+// ── Action Execute Button ────────────────────────────────────
 function executeAction() {
   const btn = document.getElementById("btnExecuteAction");
-  btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Dispatched to ERP/WMS (200 OK)</span>`;
-  btn.className = "flex-1 bg-emerald-600 text-white text-xs font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/25 transition";
+  if (!btn) return;
+  btn.innerHTML = `<i data-lucide="check" style="width:13px;height:13px;"></i><span>Dispatched — 200 OK</span>`;
+  btn.style.cssText = "flex:1;background:linear-gradient(135deg,#059669,#047857);box-shadow:0 2px 8px rgba(5,150,105,0.4);color:#ffffff !important;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;";
   if (window.lucide) lucide.createIcons();
-  
-  showToast("🚀 Action successfully dispatched to enterprise ERP/WMS dispatcher.", "success");
+  showToast("Action dispatched to enterprise ERP/WMS.", "success");
 
   setTimeout(() => {
-    btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i><span>1-Click Execute Action</span>`;
-    btn.className = "flex-1 bg-gradient-to-r from-accenture-purple to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white text-xs font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/25 transition";
+    btn.innerHTML = `<i data-lucide="play" style="width:13px;height:13px;"></i><span>1-Click Execute</span>`;
+    btn.style.cssText = "";
+    btn.className = "btn-primary";
+    btn.style.flex = "1";
     if (window.lucide) lucide.createIcons();
   }, 3500);
 }
 
-function openFeedbackModal() {
-  document.getElementById("feedbackModal").classList.remove("hidden");
-}
-
-function closeFeedbackModal() {
-  document.getElementById("feedbackModal").classList.add("hidden");
-}
-
-function openContractModal() {
-  document.getElementById("contractModal").classList.remove("hidden");
-}
-
-function closeContractModal() {
-  document.getElementById("contractModal").classList.add("hidden");
-}
+// ── Modals ───────────────────────────────────────────────────
+function openFeedbackModal()  { document.getElementById("feedbackModal").style.display  = "flex"; }
+function closeFeedbackModal() { document.getElementById("feedbackModal").style.display  = "none"; }
+function openContractModal()  { document.getElementById("contractModal").style.display  = "flex"; }
+function closeContractModal() { document.getElementById("contractModal").style.display  = "none"; }
 
 async function submitAnalystFeedback() {
-  const driver = document.getElementById("fbDriverSelect").value;
+  const driver  = document.getElementById("fbDriverSelect").value;
   const comment = document.getElementById("fbComment").value;
-
   try {
     await fetch(`${API_BASE}/api/feedback`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        incident_id: "INC-20260715-WEST",
-        user_role: currentPersona,
-        feedback_type: "thumbs_up",
-        confirmed_driver: driver,
-        analyst_comment: comment
-      })
+      body: JSON.stringify({ incident_id: "INC-20260715-WEST", user_role: currentPersona, feedback_type: "thumbs_up", confirmed_driver: driver, analyst_comment: comment })
     });
-  } catch (err) {
-    // Offline fallback
-  }
-
+  } catch (_) {}
   closeFeedbackModal();
-  showToast(`✅ Feedback recorded! Bayesian prior weight for '${driver}' updated.`, "success");
+  showToast(`Bayesian prior updated for: ${driver}`, "success");
 }
 
+// ── Toast ────────────────────────────────────────────────────
 function showToast(message, type = "info") {
   const container = document.getElementById("toastContainer");
+  if (!container) return;
   const toast = document.createElement("div");
-  
-  const borderCol = type === "success" ? "border-emerald-500/40 bg-space-900 text-emerald-300 shadow-emerald-500/10" : (type === "warning" ? "border-amber-500/40 bg-space-900 text-amber-300 shadow-amber-500/10" : "border-purple-500/40 bg-space-900 text-purple-300 shadow-purple-500/10");
-
-  toast.className = `glass-card p-3 rounded-xl border ${borderCol} text-xs shadow-xl flex items-center space-x-2 max-w-sm pointer-events-auto animate-slide-up`;
-  toast.innerHTML = `<span>${message}</span>`;
+  const colors = {
+    success: { border: "rgba(16,185,129,0.35)", color: "#10B981", bg: "var(--bg-surface)" },
+    warning: { border: "rgba(245,158,11,0.35)", color: "#F59E0B", bg: "var(--bg-surface)" },
+    info:    { border: "rgba(124,58,237,0.35)", color: "var(--purple-light)", bg: "var(--bg-surface)" }
+  };
+  const c = colors[type] || colors.info;
+  toast.className = "animate-slide-up";
+  toast.style.cssText = `
+    background:${c.bg};
+    border:1px solid ${c.border};
+    color:${c.color};
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:12px;
+    font-weight:600;
+    max-width:340px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    pointer-events:auto;
+    line-height:1.4;
+  `;
+  toast.textContent = message;
   container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transition = "opacity 0.3s ease";
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  setTimeout(() => { toast.style.transition = "opacity 0.3s"; toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 4000);
 }
 
-// -------------------------------------------------------------
-// 5. THEME SWITCHER (LIGHT & DARK MODE)
-// -------------------------------------------------------------
-let currentTheme = "dark";
-
+// ── Theme Toggle ─────────────────────────────────────────────
 function toggleTheme() {
   const root = document.documentElement;
-  const icon = document.getElementById("themeIcon");
+  const container = document.getElementById("themeIconContainer");
 
   if (currentTheme === "dark") {
     currentTheme = "light";
     root.classList.remove("dark");
     root.classList.add("light");
-    if (icon) {
-      icon.setAttribute("data-lucide", "moon");
-      icon.className = "w-4 h-4 text-purple-700";
+    if (container) {
+      container.innerHTML = `<i data-lucide="moon" style="width:16px;height:16px;color:#7C3AED;"></i>`;
     }
-    showToast("☀️ Switched to Crisp Light Formal Theme", "info");
+    showToast("Light theme active.", "info");
   } else {
     currentTheme = "dark";
     root.classList.remove("light");
     root.classList.add("dark");
-    if (icon) {
-      icon.setAttribute("data-lucide", "sun");
-      icon.className = "w-4 h-4 text-amber-400";
+    if (container) {
+      container.innerHTML = `<i data-lucide="sun" style="width:16px;height:16px;color:#F59E0B;"></i>`;
     }
-    showToast("🌙 Switched to Deep Space Dark Theme", "info");
+    showToast("Dark theme active.", "info");
   }
-
   if (window.lucide) lucide.createIcons();
   updateChartTheme();
 }
 
 function updateChartTheme() {
   if (!kpiChartInstance) return;
-  const isDark = currentTheme === "dark";
-  const gridColor = isDark ? "rgba(51, 65, 85, 0.25)" : "rgba(203, 213, 225, 0.6)";
-  const tickColor = isDark ? "#94A3B8" : "#64748B";
-
-  kpiChartInstance.options.scales.x.grid.color = gridColor;
-  kpiChartInstance.options.scales.x.ticks.color = tickColor;
-  kpiChartInstance.options.scales.y.grid.color = gridColor;
-  kpiChartInstance.options.scales.y.ticks.color = tickColor;
+  const dark = currentTheme === "dark";
+  const grid = dark ? "rgba(71,85,105,0.20)" : "rgba(203,213,225,0.65)";
+  const tick = dark ? "#64748B" : "#334155";
+  kpiChartInstance.options.scales.x.grid.color = grid;
+  kpiChartInstance.options.scales.x.ticks.color = tick;
+  kpiChartInstance.options.scales.y.grid.color = grid;
+  kpiChartInstance.options.scales.y.ticks.color = tick;
   kpiChartInstance.update();
 }

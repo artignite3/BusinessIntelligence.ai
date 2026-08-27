@@ -1,5 +1,3 @@
-"""Bayesian multi-hypothesis evaluation and autonomous abstention engine."""
-
 from typing import Dict, Any, List
 import pandas as pd
 
@@ -20,64 +18,56 @@ def evaluate_causal_confidence_and_abstention(
     damage_claims = day_log["transit_damage_claims"].sum()
     avg_sentiment = context_data.get("average_customer_sentiment", 0.0)
 
-    # Bayesian Priors
-    prior_p_defect = 0.35
-    prior_p_transit = 0.45
-    prior_p_remorse = 0.20
+    # Domain priors derived from historical incident base rates
+    prior_defect = 0.35
+    prior_transit = 0.45
+    prior_remorse = 0.20
 
-    # Evidence Likelihoods
+    # Likelihood shifts based on sentiment polarity + observed damage events
     if avg_sentiment > 0.4:
-        likelihood_defect = 0.15
-        likelihood_transit = 0.85 if damage_claims > 20 else 0.40
-        likelihood_remorse = 0.25
+        lk_defect, lk_transit, lk_remorse = 0.15, (0.85 if damage_claims > 20 else 0.40), 0.25
     elif avg_sentiment < -0.4:
-        likelihood_defect = 0.80
-        likelihood_transit = 0.30
-        likelihood_remorse = 0.10
+        lk_defect, lk_transit, lk_remorse = 0.80, 0.30, 0.10
     else:
-        likelihood_defect = 0.45
-        likelihood_transit = 0.50
-        likelihood_remorse = 0.35
+        lk_defect, lk_transit, lk_remorse = 0.45, 0.50, 0.35
 
-    raw_p_defect = likelihood_defect * prior_p_defect
-    raw_p_transit = likelihood_transit * prior_p_transit
-    raw_p_remorse = likelihood_remorse * prior_p_remorse
-    total_norm = raw_p_defect + raw_p_transit + raw_p_remorse + 1e-6
+    rp_defect = lk_defect * prior_defect
+    rp_transit = lk_transit * prior_transit
+    rp_remorse = lk_remorse * prior_remorse
+    norm = rp_defect + rp_transit + rp_remorse + 1e-6
 
-    post_p_defect = round(raw_p_defect / total_norm, 3)
-    post_p_transit = round(raw_p_transit / total_norm, 3)
-    post_p_remorse = round(raw_p_remorse / total_norm, 3)
+    post_transit = round(rp_transit / norm, 3)
+    post_defect = round(rp_defect / norm, 3)
+    post_remorse = round(rp_remorse / norm, 3)
 
     ranked_hypotheses: List[Dict[str, Any]] = [
         {
-            "rank": 1 if post_p_transit >= post_p_defect else 2,
+            "rank": 1 if post_transit >= post_defect else 2,
             "hypothesis": "Third-Party Courier Transit Damage & Package Crushing",
-            "posterior_probability": float(post_p_transit),
+            "posterior_probability": float(post_transit),
             "supporting_evidence": f"High carrier damage claims ({damage_claims} events) alongside positive product audio reviews.",
             "recommended_verification": "Audit warehouse return inspection video scans for package crushing.",
         },
         {
-            "rank": 2 if post_p_transit >= post_p_defect else 1,
+            "rank": 2 if post_transit >= post_defect else 1,
             "hypothesis": "Internal Product Quality / Hardware Failure",
-            "posterior_probability": float(post_p_defect),
+            "posterior_probability": float(post_defect),
             "supporting_evidence": f"High return rate ({round(return_rate, 1)}%), but contradictory to 90%+ positive sound quality ratings.",
             "recommended_verification": "Conduct QA bench testing on 50 returned units.",
         },
         {
             "rank": 3,
             "hypothesis": "Post-Holiday Buyer Remorse / Unprompted Returns",
-            "posterior_probability": float(post_p_remorse),
+            "posterior_probability": float(post_remorse),
             "supporting_evidence": "Baseline discretionary return patterns.",
             "recommended_verification": "Survey churned customers via follow-up email.",
         },
     ]
     ranked_hypotheses.sort(key=lambda x: x["posterior_probability"], reverse=True)
 
-    max_confidence = float(ranked_hypotheses[0]["posterior_probability"])
-    should_abstain = bool(max_confidence < confidence_threshold)
-    contradiction_detected = bool(
-        (float(return_rate) > 10.0) and (float(avg_sentiment) > 0.4)
-    )
+    max_conf = float(ranked_hypotheses[0]["posterior_probability"])
+    should_abstain = max_conf < confidence_threshold
+    contradiction = (float(return_rate) > 10.0) and (float(avg_sentiment) > 0.4)
 
     return {
         "target_date": str(target_date),
@@ -87,16 +77,15 @@ def evaluate_causal_confidence_and_abstention(
             "logistics_damage_claims": int(damage_claims),
             "customer_voice_sentiment": float(avg_sentiment),
         },
-        "contradiction_detected": bool(contradiction_detected),
+        "contradiction_detected": bool(contradiction),
         "contradiction_reason": "Return volume spiked by 350%, yet customer reviews are 92% positive regarding core product audio quality.",
         "should_abstain": bool(should_abstain),
-        "max_confidence_score": float(max_confidence),
-        "decision_status": "SYSTEM_ABSTENTION_LOW_CONFIDENCE"
-        if should_abstain
-        else "HIGH_CONFIDENCE_ATTRIBUTION",
-        "abstention_banner_text": "⚠️ SYSTEM ABSTAINED: Evidence is contradictory between logistics claims and product satisfaction. Automated supplier penalty withheld until physical audit."
-        if should_abstain
-        else None,
+        "max_confidence_score": float(max_conf),
+        "decision_status": "SYSTEM_ABSTENTION_LOW_CONFIDENCE" if should_abstain else "HIGH_CONFIDENCE_ATTRIBUTION",
+        "abstention_banner_text": (
+            "⚠️ SYSTEM ABSTAINED: Evidence is contradictory between logistics claims and product satisfaction. Automated supplier penalty withheld until physical audit."
+            if should_abstain else None
+        ),
         "ranked_hypotheses": ranked_hypotheses,
         "disambiguation_action": "Conduct mandatory physical inspection on 50 returned packages at Central Warehouse to verify courier vs. hardware failure.",
     }
@@ -105,11 +94,6 @@ def evaluate_causal_confidence_and_abstention(
 if __name__ == "__main__":
     df_s = pd.read_csv("data/sales_orders.csv")
     df_l = pd.read_csv("data/logistics_wms.csv")
-    sample_context = {
-        "average_customer_sentiment": 0.58,
-        "top_topic_clusters": {"Courier Transit Damage": 30},
-    }
-    res = evaluate_causal_confidence_and_abstention(
-        df_s, df_l, sample_context, "2026-07-21"
-    )
+    ctx = {"average_customer_sentiment": 0.58, "top_topic_clusters": {"Courier Transit Damage": 30}}
+    res = evaluate_causal_confidence_and_abstention(df_s, df_l, ctx, "2026-07-21")
     print(f"Decision: {res['decision_status']}")

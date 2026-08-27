@@ -1,11 +1,6 @@
-"""Database and Cloud Data Warehouse connector (Snowflake, BigQuery, PostgreSQL)."""
-
 from typing import Optional
 import pandas as pd
-from data.connectors.normalizer import (
-    normalize_sales_dataframe,
-    normalize_logistics_dataframe,
-)
+from data.connectors.normalizer import normalize_sales_dataframe, normalize_logistics_dataframe
 
 
 def fetch_sales_from_warehouse(
@@ -19,10 +14,10 @@ def fetch_sales_from_warehouse(
         WHERE date >= '2026-07-01'
     """
     try:
-        raw_df = pd.read_sql(query or default_query, connection_uri)
-        return normalize_sales_dataframe(raw_df)
+        raw = pd.read_sql(query or default_query, connection_uri)
+        return normalize_sales_dataframe(raw)
     except Exception as e:
-        print(f"Database query fallback to local store: {e}")
+        print(f"DB query failed, falling back to local CSV: {e}")
         return pd.read_csv("data/sales_orders.csv")
 
 
@@ -37,8 +32,8 @@ def fetch_logistics_from_warehouse(
         WHERE date >= '2026-07-01'
     """
     try:
-        raw_df = pd.read_sql(query or default_query, connection_uri)
-        return normalize_logistics_dataframe(raw_df)
+        raw = pd.read_sql(query or default_query, connection_uri)
+        return normalize_logistics_dataframe(raw)
     except Exception as e:
-        print(f"Database query fallback to local store: {e}")
+        print(f"DB query failed, falling back to local CSV: {e}")
         return pd.read_csv("data/logistics_wms.csv")

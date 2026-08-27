@@ -1,5 +1,3 @@
-"""Persona narrative synthesizer and 7-pillar action matrix generator."""
-
 from typing import Dict, Any
 
 
@@ -9,28 +7,25 @@ def synthesize_persona_narrative(
     persona: str = "vp_commercial",
 ) -> Dict[str, Any]:
     if scenario_type == "multi_factor_anomaly":
-        top_driver = analytical_results["ranked_drivers"][0]["driver_name"]
-        top_pct = analytical_results["ranked_drivers"][0][
-            "shapley_contribution_pct"
-        ]
-        second_driver = analytical_results["ranked_drivers"][1]["driver_name"]
-        second_pct = analytical_results["ranked_drivers"][1][
-            "shapley_contribution_pct"
-        ]
+        top = analytical_results["ranked_drivers"][0]
+        second = analytical_results["ranked_drivers"][1]
         delta_usd = abs(analytical_results["total_revenue_delta_usd"])
 
         if persona == "vp_commercial":
-            headline = f"Executive Alert: West Region Net Revenue fell by ${delta_usd:,.2f} driven by combined Logistics Port Bottleneck & Checkout Failures."
+            headline = (
+                f"Executive Alert: West Region Net Revenue fell by ${delta_usd:,.2f} "
+                f"driven by combined Logistics Port Bottleneck & Checkout Failures."
+            )
             narrative = (
                 f"On July 15, West Region Net Revenue experienced a material 8.4% contraction (${delta_usd:,.2f} variance). "
                 f"Deterministic Shapley decomposition proves this was not a generic market slowdown, but an interaction of three distinct operational failures: "
-                f"1) {top_driver} accounted for {top_pct}% of the drop due to 48-hour container dispatch delays, "
-                f"2) {second_driver} contributed {second_pct}% via iOS checkout timeout errors, and "
+                f"1) {top['driver_name']} accounted for {top['shapley_contribution_pct']}% of the drop due to 48-hour container dispatch delays, "
+                f"2) {second['driver_name']} contributed {second['shapley_contribution_pct']}% via iOS checkout timeout errors, and "
                 f"3) Promotional discount misconfiguration added 20% margin erosion. "
                 f"Simpson's paradox checks confirm that East and North regions remained completely unaffected."
             )
             action_plan = {
-                "driver": f"{top_driver} & {second_driver}",
+                "driver": f"{top['driver_name']} & {second['driver_name']}",
                 "controllable_lever": "Promotional Budget Reallocation & Executive Carrier Escalation",
                 "action": "Approve $25k temporary expedited air-freight buffer and restrict West region flash discounts to 10% maximum.",
                 "expected_impact": "+$64,000 revenue recovery within 5 business days; margin stabilized.",
@@ -39,10 +34,10 @@ def synthesize_persona_narrative(
                 "monitoring_plan": "Daily financial audit on Net Revenue and gross margin for 7 days.",
             }
         else:
-            headline = f"Operations Action Memo: West Distribution Port Bottleneck causing 48.5h dispatch delays and 18% cancellation spikes."
+            headline = "Operations Action Memo: West Distribution Port Bottleneck causing 48.5h dispatch delays and 18% cancellation spikes."
             narrative = (
                 f"Operational telemetry indicates that FastExpress Carrier A suffered a major 48.5-hour dispatch bottleneck at the West Coast Distribution Center on July 15. "
-                f"This single failure accounts for {top_pct}% of customer cancellations and an OTIF collapse to 61.2%. "
+                f"This single failure accounts for {top['shapley_contribution_pct']}% of customer cancellations and an OTIF collapse to 61.2%. "
                 f"Unstructured Zendesk logs reveal over 40 customer complaints regarding tracking timeouts. Financial margin columns are masked under regional security policies."
             )
             action_plan = {
@@ -106,20 +101,12 @@ def synthesize_persona_narrative(
 
 
 if __name__ == "__main__":
-    mock_res = {
+    mock = {
         "total_revenue_delta_usd": -52400.00,
         "ranked_drivers": [
-            {
-                "driver_name": "Logistics Dispatch Port Bottleneck",
-                "shapley_contribution_pct": 48.0,
-            },
-            {
-                "driver_name": "Payment Gateway Timeout Errors",
-                "shapley_contribution_pct": 32.0,
-            },
+            {"driver_name": "Logistics Dispatch Port Bottleneck", "shapley_contribution_pct": 48.0},
+            {"driver_name": "Payment Gateway Timeout Errors", "shapley_contribution_pct": 32.0},
         ],
     }
-    vp_memo = synthesize_persona_narrative(
-        "multi_factor_anomaly", mock_res, "vp_commercial"
-    )
-    print(vp_memo["executive_headline"])
+    memo = synthesize_persona_narrative("multi_factor_anomaly", mock, "vp_commercial")
+    print(memo["executive_headline"])

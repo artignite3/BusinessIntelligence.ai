@@ -1,75 +1,55 @@
-"""Hierarchical Bayesian prior smoothing for sparse history product launches."""
-
 from typing import Dict, Any, List
 import pandas as pd
 
 
 def evaluate_cold_start_kpi(
-    df_cold_start: pd.DataFrame,
+    df: pd.DataFrame,
     category_baseline_mean: float = 21.5,
     category_baseline_std: float = 3.2,
     target_day: int = 10,
 ) -> Dict[str, Any]:
-    history_len = len(df_cold_start)
-    target_row = df_cold_start[
-        df_cold_start["launch_day_number"] == target_day
-    ].iloc[0]
-    observed_units = float(target_row["units_sold"])
+    history_len = len(df)
+    row = df[df["launch_day_number"] == target_day].iloc[0]
+    observed = float(row["units_sold"])
 
-    prior_weight = 0.65
-    empirical_weight = 0.35
-    smoothed_expected_units = (category_baseline_mean * prior_weight) + (
-        observed_units * empirical_weight
-    )
-    smoothed_expected_units = round(smoothed_expected_units, 1)
+    # Blend category peer mean (65%) with observed SKU data (35%) to handle sparse history
+    prior_w = 0.65
+    smoothed = round((category_baseline_mean * prior_w) + (observed * (1 - prior_w)), 1)
 
-    lower_bound = round(
-        smoothed_expected_units - 1.96 * category_baseline_std, 1
-    )
-    upper_bound = round(
-        smoothed_expected_units + 1.96 * category_baseline_std, 1
-    )
-    is_anomaly = observed_units < lower_bound
-    pct_drop_vs_category = round(
-        ((observed_units - category_baseline_mean) / category_baseline_mean)
-        * 100,
-        1,
-    )
+    lower = round(smoothed - 1.96 * category_baseline_std, 1)
+    upper = round(smoothed + 1.96 * category_baseline_std, 1)
+    is_anomaly = observed < lower
+    pct_dev = round(((observed - category_baseline_mean) / category_baseline_mean) * 100, 1)
 
-    trajectory: List[Dict[str, Any]] = []
-    for _, row in df_cold_start.iterrows():
-        trajectory.append(
-            {
-                "day": int(row["launch_day_number"]),
-                "date": str(row["date"]),
-                "actual_units_sold": int(row["units_sold"]),
-                "category_peer_baseline": float(category_baseline_mean),
-                "bayesian_smoothed_expectation": float(
-                    round(
-                        (category_baseline_mean * 0.65)
-                        + (float(row["units_sold"]) * 0.35),
-                        1,
-                    )
-                ),
-            }
-        )
+    trajectory: List[Dict[str, Any]] = [
+        {
+            "day": int(r["launch_day_number"]),
+            "date": str(r["date"]),
+            "actual_units_sold": int(r["units_sold"]),
+            "category_peer_baseline": float(category_baseline_mean),
+            "bayesian_smoothed_expectation": float(
+                round((category_baseline_mean * prior_w) + (float(r["units_sold"]) * (1 - prior_w)), 1)
+            ),
+        }
+        for _, r in df.iterrows()
+    ]
 
     return {
-        "sku_id": str(target_row["sku_id"]),
-        "sku_name": str(target_row["sku_name"]),
+        "sku_id": str(row["sku_id"]),
+        "sku_name": str(row["sku_name"]),
         "launch_day_number": int(target_day),
         "total_historical_days": int(history_len),
         "is_sparse_history": True,
         "strategy_applied": "Hierarchical Bayesian Prior Smoothing (Category: EV Accessories)",
-        "observed_units": int(observed_units),
+        "observed_units": int(observed),
         "category_peer_baseline": float(category_baseline_mean),
-        "bayesian_smoothed_expectation": float(smoothed_expected_units),
+        "bayesian_smoothed_expectation": float(smoothed),
         "tolerance_band": {
-            "lower_bound_95ci": float(lower_bound),
-            "upper_bound_95ci": float(upper_bound),
+            "lower_bound_95ci": float(lower),
+            "upper_bound_95ci": float(upper),
         },
         "is_statistically_significant_drop": bool(is_anomaly),
-        "percentage_deviation_vs_category": float(pct_drop_vs_category),
+        "percentage_deviation_vs_category": float(pct_dev),
         "cold_start_diagnosis": "Sudden Day 10 drop is outside Bayesian tolerance bands. Lack of promotional push detected after initial launch spike.",
         "trajectory": trajectory,
     }
