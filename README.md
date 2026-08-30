@@ -135,7 +135,8 @@ BuisnessIntelligence.ai/
 
 ```bash
 # 1. Clone and set up environment
-git clone https://github.com/your-username/BusinessIntelligence.ai.git
+
+git clone https://github.com/BugFreeIITP/BusinessIntelligence-ai.git
 python -m venv venv && .\venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 

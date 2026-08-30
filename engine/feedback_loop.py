@@ -16,7 +16,7 @@ DEFAULT_PRIORS: Dict[str, float] = {
 
 def load_causal_priors() -> Dict[str, float]:
     if os.path.exists(PRIORS_STATE_PATH):
-        with open(PRIORS_STATE_PATH, "r", encoding="utf-8") as f:
+        with open(PRIORS_STATE_PATH, "r", encoding="utf-8-sig") as f:
             return json.load(f)
     return DEFAULT_PRIORS.copy()
 

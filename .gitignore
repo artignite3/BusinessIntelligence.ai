@@ -76,3 +76,7 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# Submission Artifacts (local only)
+submission_deliverables/
+generate_submission_artifacts.py
